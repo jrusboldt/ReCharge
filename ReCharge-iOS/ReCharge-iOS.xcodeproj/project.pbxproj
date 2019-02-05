@@ -7,27 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D0CD47C62203E03500A11CF5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0CD47C52203E03500A11CF5 /* AppDelegate.swift */; };
-		D0CD47C82203E03500A11CF5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0CD47C72203E03500A11CF5 /* ViewController.swift */; };
-		D0CD47CB2203E03500A11CF5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0CD47C92203E03500A11CF5 /* Main.storyboard */; };
-		D0CD47CE2203E03500A11CF5 /* ReCharge_iOS.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D0CD47CC2203E03500A11CF5 /* ReCharge_iOS.xcdatamodeld */; };
-		D0CD47D02203E03600A11CF5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0CD47CF2203E03600A11CF5 /* Assets.xcassets */; };
-		D0CD47D32203E03600A11CF5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0CD47D12203E03600A11CF5 /* LaunchScreen.storyboard */; };
+		D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */; };
+		D0BEA760220A2DEA00FF2485 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA75F220A2DEA00FF2485 /* ViewController.swift */; };
+		D0BEA763220A2DEA00FF2485 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0BEA761220A2DEA00FF2485 /* Main.storyboard */; };
+		D0BEA766220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA764220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld */; };
+		D0BEA768220A2DEA00FF2485 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BEA767220A2DEA00FF2485 /* Assets.xcassets */; };
+		D0BEA76B220A2DEA00FF2485 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0BEA769220A2DEA00FF2485 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		D0CD47C22203E03500A11CF5 /* ReCharge-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ReCharge-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D0CD47C52203E03500A11CF5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		D0CD47C72203E03500A11CF5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		D0CD47CA2203E03500A11CF5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		D0CD47CD2203E03500A11CF5 /* ReCharge_iOS.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ReCharge_iOS.xcdatamodel; sourceTree = "<group>"; };
-		D0CD47CF2203E03600A11CF5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		D0CD47D22203E03600A11CF5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		D0CD47D42203E03600A11CF5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D0BEA75A220A2DEA00FF2485 /* ReCharge-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ReCharge-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		D0BEA75F220A2DEA00FF2485 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		D0BEA762220A2DEA00FF2485 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		D0BEA765220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ReCharge_iOS.xcdatamodel; sourceTree = "<group>"; };
+		D0BEA767220A2DEA00FF2485 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D0BEA76A220A2DEA00FF2485 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		D0BEA76C220A2DEA00FF2485 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		D0CD47BF2203E03500A11CF5 /* Frameworks */ = {
+		D0BEA757220A2DEA00FF2485 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -37,32 +37,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		D0CD47B92203E03500A11CF5 = {
+		D0BEA751220A2DEA00FF2485 = {
 			isa = PBXGroup;
 			children = (
-				D0CD47C42203E03500A11CF5 /* ReCharge-iOS */,
-				D0CD47C32203E03500A11CF5 /* Products */,
+				D0BEA75C220A2DEA00FF2485 /* ReCharge-iOS */,
+				D0BEA75B220A2DEA00FF2485 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		D0CD47C32203E03500A11CF5 /* Products */ = {
+		D0BEA75B220A2DEA00FF2485 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D0CD47C22203E03500A11CF5 /* ReCharge-iOS.app */,
+				D0BEA75A220A2DEA00FF2485 /* ReCharge-iOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D0CD47C42203E03500A11CF5 /* ReCharge-iOS */ = {
+		D0BEA75C220A2DEA00FF2485 /* ReCharge-iOS */ = {
 			isa = PBXGroup;
 			children = (
-				D0CD47C52203E03500A11CF5 /* AppDelegate.swift */,
-				D0CD47C72203E03500A11CF5 /* ViewController.swift */,
-				D0CD47C92203E03500A11CF5 /* Main.storyboard */,
-				D0CD47CF2203E03600A11CF5 /* Assets.xcassets */,
-				D0CD47D12203E03600A11CF5 /* LaunchScreen.storyboard */,
-				D0CD47D42203E03600A11CF5 /* Info.plist */,
-				D0CD47CC2203E03500A11CF5 /* ReCharge_iOS.xcdatamodeld */,
+				D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */,
+				D0BEA75F220A2DEA00FF2485 /* ViewController.swift */,
+				D0BEA761220A2DEA00FF2485 /* Main.storyboard */,
+				D0BEA767220A2DEA00FF2485 /* Assets.xcassets */,
+				D0BEA769220A2DEA00FF2485 /* LaunchScreen.storyboard */,
+				D0BEA76C220A2DEA00FF2485 /* Info.plist */,
+				D0BEA764220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld */,
 			);
 			path = "ReCharge-iOS";
 			sourceTree = "<group>";
@@ -70,13 +70,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D0CD47C12203E03500A11CF5 /* ReCharge-iOS */ = {
+		D0BEA759220A2DEA00FF2485 /* ReCharge-iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D0CD47D72203E03600A11CF5 /* Build configuration list for PBXNativeTarget "ReCharge-iOS" */;
+			buildConfigurationList = D0BEA76F220A2DEA00FF2485 /* Build configuration list for PBXNativeTarget "ReCharge-iOS" */;
 			buildPhases = (
-				D0CD47BE2203E03500A11CF5 /* Sources */,
-				D0CD47BF2203E03500A11CF5 /* Frameworks */,
-				D0CD47C02203E03500A11CF5 /* Resources */,
+				D0BEA756220A2DEA00FF2485 /* Sources */,
+				D0BEA757220A2DEA00FF2485 /* Frameworks */,
+				D0BEA758220A2DEA00FF2485 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -84,24 +84,24 @@
 			);
 			name = "ReCharge-iOS";
 			productName = "ReCharge-iOS";
-			productReference = D0CD47C22203E03500A11CF5 /* ReCharge-iOS.app */;
+			productReference = D0BEA75A220A2DEA00FF2485 /* ReCharge-iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		D0CD47BA2203E03500A11CF5 /* Project object */ = {
+		D0BEA752220A2DEA00FF2485 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1010;
 				LastUpgradeCheck = 1010;
 				TargetAttributes = {
-					D0CD47C12203E03500A11CF5 = {
+					D0BEA759220A2DEA00FF2485 = {
 						CreatedOnToolsVersion = 10.1;
 					};
 				};
 			};
-			buildConfigurationList = D0CD47BD2203E03500A11CF5 /* Build configuration list for PBXProject "ReCharge-iOS" */;
+			buildConfigurationList = D0BEA755220A2DEA00FF2485 /* Build configuration list for PBXProject "ReCharge-iOS" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -109,55 +109,55 @@
 				en,
 				Base,
 			);
-			mainGroup = D0CD47B92203E03500A11CF5;
-			productRefGroup = D0CD47C32203E03500A11CF5 /* Products */;
+			mainGroup = D0BEA751220A2DEA00FF2485;
+			productRefGroup = D0BEA75B220A2DEA00FF2485 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D0CD47C12203E03500A11CF5 /* ReCharge-iOS */,
+				D0BEA759220A2DEA00FF2485 /* ReCharge-iOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		D0CD47C02203E03500A11CF5 /* Resources */ = {
+		D0BEA758220A2DEA00FF2485 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0CD47D32203E03600A11CF5 /* LaunchScreen.storyboard in Resources */,
-				D0CD47D02203E03600A11CF5 /* Assets.xcassets in Resources */,
-				D0CD47CB2203E03500A11CF5 /* Main.storyboard in Resources */,
+				D0BEA76B220A2DEA00FF2485 /* LaunchScreen.storyboard in Resources */,
+				D0BEA768220A2DEA00FF2485 /* Assets.xcassets in Resources */,
+				D0BEA763220A2DEA00FF2485 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		D0CD47BE2203E03500A11CF5 /* Sources */ = {
+		D0BEA756220A2DEA00FF2485 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0CD47CE2203E03500A11CF5 /* ReCharge_iOS.xcdatamodeld in Sources */,
-				D0CD47C82203E03500A11CF5 /* ViewController.swift in Sources */,
-				D0CD47C62203E03500A11CF5 /* AppDelegate.swift in Sources */,
+				D0BEA766220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld in Sources */,
+				D0BEA760220A2DEA00FF2485 /* ViewController.swift in Sources */,
+				D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		D0CD47C92203E03500A11CF5 /* Main.storyboard */ = {
+		D0BEA761220A2DEA00FF2485 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				D0CD47CA2203E03500A11CF5 /* Base */,
+				D0BEA762220A2DEA00FF2485 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		D0CD47D12203E03600A11CF5 /* LaunchScreen.storyboard */ = {
+		D0BEA769220A2DEA00FF2485 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				D0CD47D22203E03600A11CF5 /* Base */,
+				D0BEA76A220A2DEA00FF2485 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -165,7 +165,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		D0CD47D52203E03600A11CF5 /* Debug */ = {
+		D0BEA76D220A2DEA00FF2485 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -226,7 +226,7 @@
 			};
 			name = Debug;
 		};
-		D0CD47D62203E03600A11CF5 /* Release */ = {
+		D0BEA76E220A2DEA00FF2485 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -281,7 +281,7 @@
 			};
 			name = Release;
 		};
-		D0CD47D82203E03600A11CF5 /* Debug */ = {
+		D0BEA770220A2DEA00FF2485 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -291,14 +291,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "Team-24.ReCharge-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.ReCharge-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		D0CD47D92203E03600A11CF5 /* Release */ = {
+		D0BEA771220A2DEA00FF2485 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -308,7 +308,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "Team-24.ReCharge-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.ReCharge-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -318,20 +318,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D0CD47BD2203E03500A11CF5 /* Build configuration list for PBXProject "ReCharge-iOS" */ = {
+		D0BEA755220A2DEA00FF2485 /* Build configuration list for PBXProject "ReCharge-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D0CD47D52203E03600A11CF5 /* Debug */,
-				D0CD47D62203E03600A11CF5 /* Release */,
+				D0BEA76D220A2DEA00FF2485 /* Debug */,
+				D0BEA76E220A2DEA00FF2485 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D0CD47D72203E03600A11CF5 /* Build configuration list for PBXNativeTarget "ReCharge-iOS" */ = {
+		D0BEA76F220A2DEA00FF2485 /* Build configuration list for PBXNativeTarget "ReCharge-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D0CD47D82203E03600A11CF5 /* Debug */,
-				D0CD47D92203E03600A11CF5 /* Release */,
+				D0BEA770220A2DEA00FF2485 /* Debug */,
+				D0BEA771220A2DEA00FF2485 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -339,17 +339,17 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		D0CD47CC2203E03500A11CF5 /* ReCharge_iOS.xcdatamodeld */ = {
+		D0BEA764220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				D0CD47CD2203E03500A11CF5 /* ReCharge_iOS.xcdatamodel */,
+				D0BEA765220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodel */,
 			);
-			currentVersion = D0CD47CD2203E03500A11CF5 /* ReCharge_iOS.xcdatamodel */;
+			currentVersion = D0BEA765220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodel */;
 			path = ReCharge_iOS.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
 /* End XCVersionGroup section */
 	};
-	rootObject = D0CD47BA2203E03500A11CF5 /* Project object */;
+	rootObject = D0BEA752220A2DEA00FF2485 /* Project object */;
 }
