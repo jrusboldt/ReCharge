@@ -14,6 +14,7 @@ class ChargingStationAnnotation: NSObject, MKAnnotation {
     var coordinate: CLLocationCoordinate2D
     let title: String?
     
+    
     init(coordinate: CLLocationCoordinate2D, title: String) {
         self.title = title
         self.coordinate = coordinate
@@ -59,6 +60,27 @@ class ViewController: UIViewController {
         checkLocationServices()
     }
     
+    func getNREL(coordinate: CLLocationCoordinate2D, amount: Int) {
+        
+        let scriptUrl = URL(string: "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=OxpIDL7uE8O60BL52DC7YYp3T1mq4uy01wlLw5bK&latitude=\(coordinate.latitude)&longitude=\(coordinate.longitude)&limit=10")!
+    
+        let configuration = URLSessionConfiguration.ephemeral
+        let session = URLSession(configuration: configuration, delegate: nil, delegateQueue: OperationQueue.main)
+        let task = session.dataTask(with: scriptUrl, completionHandler: { [weak self] (data: Data?, response: URLResponse?, error: Error?) -> Void in
+            // Parse the data in the response and use it
+            do {
+                let json = try JSONSerialization.jsonObject(with: data!, options: []) as! [String: AnyObject]
+                
+                let stationArray = json["fuel_stations"]
+                print(stationArray)
+                
+            } catch let error as NSError {
+                print("Failed to load: \(error.localizedDescription)")
+            }
+        })
+        task.resume()
+    }
+    
     private func registerMapAnnotationViews() {
         mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(ChargingStationAnnotation.self))
     }
@@ -75,6 +97,8 @@ class ViewController: UIViewController {
             
             
             let annotation = ChargingStationAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude), title: "Station 1")
+            
+            getNREL(coordinate: location, amount: 5)
             
             mapView.addAnnotation(annotation)
         }
