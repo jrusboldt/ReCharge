@@ -28,9 +28,9 @@ class FuelStations: NSObject, MKAnnotation {
     super.init()
 
     var error : NSError?
-    let JSONData = JSONString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
+    let JSONData = JSONString.data(using: String.Encoding.utf8, allowLossyConversion: false)
 
-    let JSONDictionary: Dictionary = NSJSONSerialization.JSONObjectWithData(JSONData, options: nil, error: &error) as NSDictionary
+    let JSONDictionary: Dictionary = JSONSerialization.JSONObjectWithData(JSONData, options: nil) as NSDictionary
 
     // Loop
     for (key, value) in JSONDictionary {

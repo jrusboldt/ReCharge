@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7BC2CA3F2217BCD900309445 /* FuelStations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC2CA3E2217BCD900309445 /* FuelStations.swift */; };
 		D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */; };
 		D0BEA760220A2DEA00FF2485 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA75F220A2DEA00FF2485 /* ViewController.swift */; };
 		D0BEA763220A2DEA00FF2485 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0BEA761220A2DEA00FF2485 /* Main.storyboard */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7BC2CA3E2217BCD900309445 /* FuelStations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FuelStations.swift; sourceTree = "<group>"; };
 		D0BEA75A220A2DEA00FF2485 /* ReCharge-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ReCharge-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D0BEA75F220A2DEA00FF2485 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -56,6 +58,7 @@
 		D0BEA75C220A2DEA00FF2485 /* ReCharge-iOS */ = {
 			isa = PBXGroup;
 			children = (
+				7BC2CA3E2217BCD900309445 /* FuelStations.swift */,
 				D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */,
 				D0BEA75F220A2DEA00FF2485 /* ViewController.swift */,
 				D0BEA761220A2DEA00FF2485 /* Main.storyboard */,
@@ -139,6 +142,7 @@
 			files = (
 				D0BEA766220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld in Sources */,
 				D0BEA760220A2DEA00FF2485 /* ViewController.swift in Sources */,
+				7BC2CA3F2217BCD900309445 /* FuelStations.swift in Sources */,
 				D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
