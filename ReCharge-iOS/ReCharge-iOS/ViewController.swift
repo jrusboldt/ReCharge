@@ -9,9 +9,47 @@ import UIKit
 import MapKit
 import CoreLocation
 
+class ChargingStationAnnotation: NSObject, MKAnnotation {
+    
+    var coordinate: CLLocationCoordinate2D
+    let title: String?
+    
+    init(coordinate: CLLocationCoordinate2D, title: String) {
+        self.title = title
+        self.coordinate = coordinate
+        super.init()
+    }
+}
+
+extension ViewController: MKMapViewDelegate {
+    // 1
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        // 2
+        guard let annotation = annotation as? ChargingStationAnnotation else { return nil }
+        // 3
+        let identifier = "marker"
+        var view: MKMarkerAnnotationView
+        // 4
+        if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+            as? MKMarkerAnnotationView {
+            dequeuedView.annotation = annotation
+            view = dequeuedView
+        } else {
+            // 5
+            view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            view.canShowCallout = true
+            view.calloutOffset = CGPoint(x: -5, y: 5)
+            view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+        }
+        return view
+    }
+}
+
 class ViewController: UIViewController {
 
     @IBOutlet weak var mapView: MKMapView!
+    
+
     
     let locationManager = CLLocationManager()
     let regionInMeters: Double = 10000
@@ -19,6 +57,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         checkLocationServices()
+    }
+    
+    private func registerMapAnnotationViews() {
+        mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(ChargingStationAnnotation.self))
     }
 
     func setupLocationManager() {
@@ -30,6 +72,11 @@ class ViewController: UIViewController {
         if let location = locationManager.location?.coordinate {
             let region = MKCoordinateRegion.init(center: location, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
             mapView.setRegion(region, animated: true)
+            
+            
+            let annotation = ChargingStationAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude), title: "Station 1")
+            
+            mapView.addAnnotation(annotation)
         }
     }
 
@@ -78,7 +125,6 @@ extension ViewController: CLLocationManagerDelegate {
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
         mapView.setRegion(region, animated: true)
-        
     }
     
     
