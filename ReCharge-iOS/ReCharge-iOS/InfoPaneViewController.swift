@@ -17,12 +17,17 @@ protocol InfoPaneDelegateProtocol
 class InfoPaneViewController: UIViewController {
     
     @IBOutlet weak var stationName: UILabel!
+    @IBOutlet weak var streetAddress: UILabel!
+    @IBOutlet weak var isParkingAvaiable: UILabel!
+    @IBOutlet weak var isChargingAvaiable: UILabel!
     
     var delegate : InfoPaneDelegateProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        view.layer.cornerRadius = 5;
+        view.layer.masksToBounds = true;
         // Do any additional setup after loading the view.
     }
     

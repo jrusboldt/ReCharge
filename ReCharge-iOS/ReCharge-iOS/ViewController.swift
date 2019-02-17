@@ -25,7 +25,7 @@ extension ViewController: MKMapViewDelegate {
     // 1
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         // 2
-        guard let annotation = annotation as? ChargingStationAnnotation else { return nil }
+        guard let annotation = annotation as? FuelStation else { return nil }
         // 3
         let identifier = "marker"
         var view: MKMarkerAnnotationView
@@ -39,16 +39,29 @@ extension ViewController: MKMapViewDelegate {
             view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
             view.canShowCallout = true
             view.calloutOffset = CGPoint(x: -5, y: 5)
-            view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+            //view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
         }
         return view
     }
     
+    // loads data into info
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView){
         if let embeddedViewController = children.first as? InfoPaneViewController,
             let annotation = view.annotation,
-            let title = annotation.title {
-            embeddedViewController.stationName.text = title
+            let fuelStation = annotation as? FuelStation {
+            
+            embeddedViewController.stationName.text = fuelStation.station_name
+            embeddedViewController.streetAddress.text = fuelStation.street_address
+            if (fuelStation.is_parking_avaiable){
+                embeddedViewController.isParkingAvaiable.text = "Yes"
+            } else {
+                embeddedViewController.isParkingAvaiable.text = "No"
+            }
+            if (fuelStation.is_charging_avaiable){
+                embeddedViewController.isChargingAvaiable.text = "Yes"
+            } else {
+                embeddedViewController.isChargingAvaiable.text = "No"
+            }
             embeddedViewController.showInfoPane()
         }
         
@@ -74,7 +87,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        //check here for the right segue by name
+        //TODO: check here for the right segue by name
         (segue.destination as! InfoPaneViewController).delegate = self;
     }
     // InfoPane functions
@@ -106,7 +119,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
             mapView.setRegion(region, animated: true)
             
             
-            let annotation = ChargingStationAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude), title: "Station 1")
+            let annotation = FuelStation(stationName: "Kokomo Charge", streetAddress: "2300 S Washington St", isParkingAvaiable: true, isChargingAvaiable: false, coordinate: CLLocationCoordinate2D(latitude: 40.4600, longitude: -86.1287))
             
             mapView.addAnnotation(annotation)
         }
@@ -156,7 +169,7 @@ extension ViewController: CLLocationManagerDelegate {
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
-        mapView.setRegion(region, animated: true)
+        //mapView.setRegion(region, animated: true)
     }
     
     
