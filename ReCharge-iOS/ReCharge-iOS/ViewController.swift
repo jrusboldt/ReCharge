@@ -50,6 +50,8 @@ extension ViewController: MKMapViewDelegate {
             let annotation = view.annotation,
             let fuelStation = annotation as? FuelStation {
             
+            embeddedViewController.annotation = fuelStation
+            /*
             embeddedViewController.stationName.text = fuelStation.station_name
             embeddedViewController.streetAddress.text = fuelStation.street_address
             if (fuelStation.is_parking_avaiable){
@@ -61,7 +63,8 @@ extension ViewController: MKMapViewDelegate {
                 embeddedViewController.isChargingAvaiable.text = "Yes"
             } else {
                 embeddedViewController.isChargingAvaiable.text = "No"
-            }
+            }*/
+            embeddedViewController.populateInfoPane(fuelStation: fuelStation)
             embeddedViewController.showInfoPane()
         }
         
@@ -169,6 +172,7 @@ extension ViewController: CLLocationManagerDelegate {
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+        
         //mapView.setRegion(region, animated: true)
     }
     

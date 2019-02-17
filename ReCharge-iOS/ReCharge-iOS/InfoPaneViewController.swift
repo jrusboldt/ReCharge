@@ -6,7 +6,9 @@
 //
 
 import UIKit
-
+import MapKit
+import CoreLocation
+import Contacts
 
 protocol InfoPaneDelegateProtocol
 {
@@ -21,6 +23,7 @@ class InfoPaneViewController: UIViewController {
     @IBOutlet weak var isParkingAvaiable: UILabel!
     @IBOutlet weak var isChargingAvaiable: UILabel!
     
+    var annotation: FuelStation?
     var delegate : InfoPaneDelegateProtocol?
     
     override func viewDidLoad() {
@@ -35,7 +38,27 @@ class InfoPaneViewController: UIViewController {
         delegate?.openInfoPane()
     }
     
-
+    func populateInfoPane(fuelStation: FuelStation){
+        self.stationName.text = fuelStation.station_name
+        self.streetAddress.text = fuelStation.street_address
+        if (fuelStation.is_parking_avaiable){
+            self.isParkingAvaiable.text = "Yes"
+        } else {
+            self.isParkingAvaiable.text = "No"
+        }
+        if (fuelStation.is_charging_avaiable){
+            self.isChargingAvaiable.text = "Yes"
+        } else {
+            self.isChargingAvaiable.text = "No"
+        }
+    }
+    
+    @IBAction func loadNavigationApp(_ sender: Any) {
+        let location = annotation
+        let launchOptions = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
+        location?.mapItem().openInMaps(launchOptions: launchOptions)
+    }
+    
     /*
     // MARK: - Navigation
 

@@ -7,6 +7,7 @@
 
 
 import MapKit
+import Contacts
 
 class FuelStation: NSObject, MKAnnotation {
     // instance variables (some commented out for initial testing)
@@ -65,6 +66,15 @@ class FuelStation: NSObject, MKAnnotation {
     
     var subtitle: String? {
         return street_address
+    }
+    
+    // Annotation right callout accessory opens this mapItem in Maps app
+    func mapItem() -> MKMapItem {
+        let addressDict = [CNPostalAddressStreetKey: subtitle!]
+        let placemark = MKPlacemark(coordinate: coordinate, addressDictionary: addressDict)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = title
+        return mapItem
     }
 
 }
