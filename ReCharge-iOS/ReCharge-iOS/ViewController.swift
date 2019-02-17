@@ -43,22 +43,54 @@ extension ViewController: MKMapViewDelegate {
         }
         return view
     }
+    
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView){
+        if let embeddedViewController = children.first as? InfoPaneViewController,
+            let annotation = view.annotation,
+            let title = annotation.title {
+            embeddedViewController.stationName.text = title
+            embeddedViewController.showInfoPane()
+        }
+        
+    }
+    
 }
 
-class ViewController: UIViewController {
-
-    @IBOutlet weak var mapView: MKMapView!
+class ViewController: UIViewController, InfoPaneDelegateProtocol {
     
-
+    @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var containerView: UIView!
+    
     
     let locationManager = CLLocationManager()
     let regionInMeters: Double = 10000
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.addSubview(containerView)
+        self.closeInfoPane()
         checkLocationServices()
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        //check here for the right segue by name
+        (segue.destination as! InfoPaneViewController).delegate = self;
+    }
+    // InfoPane functions
+    func openInfoPane() {
+        containerView.isHidden = false
+    }
+    
+    func closeInfoPane() {
+        containerView.isHidden = true
+    }
+    
+    @IBAction func unwindToMapView(_ sender: UIStoryboardSegue) {
+        self.closeInfoPane()
+    }
+    
+    // map function
     private func registerMapAnnotationViews() {
         mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(ChargingStationAnnotation.self))
     }
