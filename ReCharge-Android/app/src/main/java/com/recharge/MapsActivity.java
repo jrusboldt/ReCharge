@@ -104,9 +104,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     public void getPathToStation(LatLng stationLoc)
     {
-        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + stationLoc.latitude +
-                "," + stationLoc.longitude);
-        Intent googleMapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        Intent googleMapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="
+                + stationLoc.latitude + "," + stationLoc.longitude));
         googleMapIntent.setPackage("com.google.android.apps.maps");
 
         /* Prevents crashing if Google Maps isn't installed */
