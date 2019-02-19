@@ -3,6 +3,8 @@ package com.recharge;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -24,6 +26,12 @@ import org.json.JSONObject;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
+    // Default location and zoom for map
+    // Right now, this location is the Purdue University Engineering Fountain
+    private final double DEFAULT_LOCLAT = 40.4286;
+    private final double DEFAULT_LOCLNG = -86.9138;
+    private final int DEFAULT_ZOOM = 15;
 
     private GoogleMap mMap;
     private final int REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -62,12 +70,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ACCESS_FINE_LOCATION);
         }
 
-        // Default location for map
-        // Right now, this location is the Purdue University Engineering Fountain
-        LatLng defaultLoc = new LatLng(40.4286, -86.9138);
-        int defaultZoom = 15;
+        LatLng defaultLoc = new LatLng(DEFAULT_LOCLAT, DEFAULT_LOCLNG);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(defaultLoc));
-        mMap.moveCamera(CameraUpdateFactory.zoomTo(defaultZoom));
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
 
         // Request and display all the stations within the radius
         requestAndDisplayStations(defaultLoc, 15);
@@ -140,5 +145,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Add the request for the json file to the request queue
         queue.add(jsonObjectRequest);
+    }
+
+    /*---------------------------------------------------------
+     *  getPathToStation - Launches Google Maps navigation
+     *      with turn-by-turn directions to the desired
+     *      charging station from the user's current location.
+     *---------------------------------------------------------
+     */
+    public void getPathToStation(LatLng stationLoc)
+    {
+        Intent googleMapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="
+                + stationLoc.latitude + "," + stationLoc.longitude));
+        googleMapIntent.setPackage("com.google.android.apps.maps");
+
+        /* Prevents crashing if Google Maps isn't installed */
+        if (googleMapIntent.resolveActivity(getPackageManager()) != null)
+            startActivity(googleMapIntent); /* Launch Google Maps */
     }
 }
