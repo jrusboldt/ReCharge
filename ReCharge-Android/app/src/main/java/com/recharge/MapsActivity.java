@@ -52,14 +52,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     "Cash D M V Voyager Wright_Exp,,,,,,,,,,200-9,40.388986,-86.839789,2018-11-08,40352,4.70792,2019-01-17 00:33:46 UTC,P,,,2011-06-03,,,,false,,US,7.57666,,,,Public,,public,,\n",
             "ELEC,DoubleTree - Lafayette East - Tesla Destination,155 Progress Dr,,Lafayette,IN,47905,," +
                     "765-446-0900  877-798-3752,E,,Public,24 hours daily; for Tesla use only; for guest use only; see front desk for access,,,,,,4,,,Tesla Destination,https://www.tesla.com/destination-charging,200-8,40.416335,-86.824716,2019-01-10,114235,4.73262,2019-01-17 00:33:46 UTC,P,,,2018-11-01,,,,,TESLA,US,7.61641,,,,Public,,public,,"};
-
+    // Default location for map
+    // Right now, this location is the Purdue University Engineering Fountain
     double defaultLocLat = 40.4286;
     double defaultLocLng = -86.9138;
 
     private GoogleMap mMap;
-
-    // 'googleMapIntent' governs Google Maps call.
-    private Intent googleMapIntent = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +83,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Default location for map
-        // Right now, this location is the Purdue University Engineering Fountain
         LatLng defaultLoc = new LatLng(defaultLocLat, defaultLocLng);
         int defaultZoom = 15;
         mMap.moveCamera(CameraUpdateFactory.newLatLng(defaultLoc));
@@ -100,6 +96,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    
+    /*---------------------------------------------------------
+     *  getPathToStation - Launches Google Maps navigation
+     *      with turn-by-turn directions to the desired
+     *      charging station from the user's current location.
+     *---------------------------------------------------------
+     */
+    public void getPathToStation(LatLng stationLoc)
+    {
+        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + stationLoc.latitude +
+                "," + stationLoc.longitude);
+        Intent googleMapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        googleMapIntent.setPackage("com.google.android.apps.maps");
 
+        /* Prevents crashing if Google Maps isn't installed */
+        if (googleMapIntent.resolveActivity(getPackageManager()) != null)
+            startActivity(googleMapIntent); /* Launch Google Maps */
+    }
 }
