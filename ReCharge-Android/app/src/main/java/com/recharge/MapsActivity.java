@@ -108,8 +108,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 + stationLoc.latitude + "," + stationLoc.longitude));
         googleMapIntent.setPackage("com.google.android.apps.maps");
 
-        /* Prevents crashing if Google Maps isn't installed */
+        /* Launch Google Maps if installed */
         if (googleMapIntent.resolveActivity(getPackageManager()) != null)
-            startActivity(googleMapIntent); /* Launch Google Maps */
+            startActivity(googleMapIntent);
     }
 }
