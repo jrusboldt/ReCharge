@@ -2,6 +2,7 @@ package com.recharge;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
 import android.support.v4.content.ContextCompat;
+import android.view.MenuItem;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -41,10 +43,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        // Set the listener for the navigation bar at the bottom of the screen
+        BottomNavigationView navigation = findViewById(R.id.navigationView);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+
+    // This is the listener for the navigation bar at the bottom of the screen
+    // This determines what should happen when each button is selected
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    return true;
+                case R.id.navigation_dashboard:
+                    return true;
+                case R.id.navigation_notifications:
+                    return true;
+            }
+            return false;
+        }
+    };
 
 
     /**
@@ -108,33 +133,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Build the request URL
         String API_Key = getApplicationContext().getString(R.string.nrel_key);
         String urlString = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=" + API_Key +
-                        "&latitude=" + latlng.latitude + "&longitude=" + latlng.longitude + "&radius=" + radius +
-                        "&limit=50";
+                "&latitude=" + latlng.latitude + "&longitude=" + latlng.longitude + "&radius=" + radius +
+                "&limit=50";
 
         // Create a request for the json file list of stations
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, urlString, null,
                 new Response.Listener<JSONObject>() {
 
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    // Get the stations out of the response
-                    JSONArray jsonArray = response.getJSONArray("fuel_stations");
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            // Get the stations out of the response
+                            JSONArray jsonArray = response.getJSONArray("fuel_stations");
 
-                    // Add a maker to the map for each station by getting the coordinates and name of each station
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject station = jsonArray.getJSONObject(i);
-                        String stationName = station.getString("station_name");
-                        LatLng stationLatLng = new LatLng(station.getDouble("latitude"), station.getDouble("longitude"));
+                            // Add a maker to the map for each station by getting the coordinates and name of each station
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject station = jsonArray.getJSONObject(i);
+                                String stationName = station.getString("station_name");
+                                LatLng stationLatLng = new LatLng(station.getDouble("latitude"), station.getDouble("longitude"));
 
-                        mMap.addMarker(new MarkerOptions().position(stationLatLng).title(stationName));
+                                mMap.addMarker(new MarkerOptions().position(stationLatLng).title(stationName));
+                            }
+
+                        } catch (Exception e) {
+                            // Handle Errors Here
+                        }
                     }
-
-                } catch (Exception e) {
-                    // Handle Errors Here
-                }
-            }
-        }, new Response.ErrorListener() {
+                }, new Response.ErrorListener() {
 
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -153,8 +178,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      *      charging station from the user's current location.
      *---------------------------------------------------------
      */
-    public void getPathToStation(LatLng stationLoc)
-    {
+    public void getPathToStation(LatLng stationLoc) {
         Intent googleMapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="
                 + stationLoc.latitude + "," + stationLoc.longitude));
         googleMapIntent.setPackage("com.google.android.apps.maps");
