@@ -1,11 +1,13 @@
 package com.recharge;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.preference.PreferenceManager;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.content.Intent;
 import android.net.Uri;
@@ -16,6 +18,11 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -30,6 +37,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import org.json.JSONArray;
@@ -47,8 +55,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
     private FusedLocationProviderClient fusedLocationClient;
+    private SharedPreferences sp;
 
     private LatLng lastKnownLocation;
+    private int lastRadiusCheck;
     private final int REQUEST_ACCESS_FINE_LOCATION = 1;
 
     @Override
@@ -63,6 +73,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Set up listener for the location
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         lastKnownLocation = new LatLng(DEFAULT_LOCLAT, DEFAULT_LOCLNG);
+
+        // Set up Preferences variable
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -88,14 +101,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Get and move to the user's location if we can
         // Don't ask for permission here. Wait until they hit the My Location Button
-        getAndMoveToUserLocation(false);
+        getAndMoveToUserLocation(false, true);
 
         // Get the radius from the settings
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        int prefRadius = sp.getInt("seekbar", 5);
+        lastRadiusCheck = sp.getInt("seekbar", 5);
+
+        // Set the custom info windows
+        CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(this);
+        mMap.setInfoWindowAdapter(customInfoWindow);
 
         // Request and display all the stations within the radius determined by the user
-        requestAndDisplayStations(lastKnownLocation, prefRadius);
+        requestAndDisplayStations(lastKnownLocation, lastRadiusCheck, true);
     }
 
     // This is the listener for the navigation bar at the bottom of the screen
@@ -115,14 +131,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     getSupportFragmentManager().beginTransaction().hide(mapFragment).replace(R.id.fragment_container, frag).addToBackStack("home").commit();
                     return true;
                 case R.id.navigation_my_location:
-                    getAndMoveToUserLocation(true);
+                    getAndMoveToUserLocation(true, true);
+                    getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    getSupportFragmentManager().beginTransaction().show(mapFragment).commit();
+                    return false;
+                case R.id.navigation_station_search:
+                    getAndMoveToUserLocation(true, false);
+                    getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    getSupportFragmentManager().beginTransaction().show(mapFragment).commit();
+                    requestAndDisplayStations(lastKnownLocation, lastRadiusCheck, false);
                     return false;
             }
             return false;
         }
     };
 
-    private void getAndMoveToUserLocation(boolean tryForPermission) {
+    private boolean isRadiusDifferent() {
+        int newCheck = sp.getInt("seekbar", 5);
+
+        if (newCheck != lastRadiusCheck) {
+            lastRadiusCheck = newCheck;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void getAndMoveToUserLocation(boolean tryForPermission, boolean move) {
         // Check for location permissions
         // If we have it, find the user. If not, do not do anything unless the "My Location" button is pressed
         // If we don't have it, then request for the permission
@@ -149,11 +184,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             lastKnownLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(lastKnownLocation, DEFAULT_ZOOM);
-                            mMap.animateCamera(cu);
                         }
                     }
                 });
+
+        if (move) {
+            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(lastKnownLocation, DEFAULT_ZOOM);
+            mMap.animateCamera(cu);
+        }
     }
 
     @Override
@@ -168,7 +206,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Permission was granted
                     mMap.setMyLocationEnabled(true);
                     mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                    getAndMoveToUserLocation(false);
+                    getAndMoveToUserLocation(false, true);
 
                 } else {
                     // Permission was denied
@@ -181,14 +219,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public void requestAndDisplayStations(LatLng latlng, int radius) {
+    public void requestAndDisplayStations(LatLng latlng, int radius, boolean override) {
+        // Let the user know we're checking for stations
+        if (!isRadiusDifferent() && !override) {
+            Toast.makeText(this, "Up to date", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Reset the map
+        mMap.clear();
+        Toast.makeText(this, "Checking for stations...", Toast.LENGTH_SHORT).show();
+
         // Initialize the request queue
         RequestQueue queue = Volley.newRequestQueue(this);
 
         // Build the request URL
         String API_Key = getApplicationContext().getString(R.string.nrel_key);
         String urlString = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=" + API_Key +
-                "&latitude=" + latlng.latitude + "&longitude=" + latlng.longitude + "&radius=" + radius +
+                "&latitude=" + latlng.latitude + "&longitude=" + latlng.longitude + "&radius=" + lastRadiusCheck +
                 "&limit=100";
 
         // Create a request for the json file list of stations
@@ -205,9 +253,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject station = jsonArray.getJSONObject(i);
                                 String stationName = station.getString("station_name");
+                                String stationAddress = station.getString("street_address") + ", " +
+                                        station.getString("city") + ", " + station.getString("state");
                                 LatLng stationLatLng = new LatLng(station.getDouble("latitude"), station.getDouble("longitude"));
 
-                                mMap.addMarker(new MarkerOptions().position(stationLatLng).title(stationName));
+                                InfoWindowData info = new InfoWindowData();
+                                float distance[] = new float[2];
+                                Location.distanceBetween(lastKnownLocation.latitude,
+                                        lastKnownLocation.longitude, stationLatLng.latitude, stationLatLng.longitude,
+                                        distance);
+                                info.setDistance(distance[0]);
+
+                                info.setChargingAvailability(false);
+                                info.setParkingAvailability(false);
+                                info.setImage("@drawable/ic_ev_station_black_24dp");
+
+                                MarkerOptions markerOptions = new MarkerOptions();
+                                markerOptions.position((stationLatLng)).title(stationName).snippet(stationAddress);
+                                Marker m = mMap.addMarker(markerOptions);
+                                m.setTag(info);
                             }
 
                         } catch (Exception e) {

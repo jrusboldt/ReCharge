@@ -2,6 +2,7 @@
     <string name="app_name">Re:Charge</string>
     <string name="title_activity_maps">Re:Charge</string>
     <string name="title_map">Map</string>
-    <string name="title_preferences">Preferences</string>
-    <string name="title_my_location">My Location</string>
+    <string name="title_preferences">Settings</string>
+    <string name="title_my_location">Location</string>
+    <string name="title_station_search">Search</string>
 </resources>
