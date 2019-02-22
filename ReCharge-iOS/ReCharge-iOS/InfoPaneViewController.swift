@@ -23,7 +23,7 @@ class InfoPaneViewController: UIViewController {
     @IBOutlet weak var isParkingAvaiable: UILabel!
     @IBOutlet weak var isChargingAvaiable: UILabel!
     
-    var annotation: FuelStation?
+    var annotation: FuelStationAnnotation?
     var delegate : InfoPaneDelegateProtocol?
     
     override func viewDidLoad() {
@@ -38,7 +38,7 @@ class InfoPaneViewController: UIViewController {
         delegate?.openInfoPane()
     }
     
-    func populateInfoPane(fuelStation: FuelStation){
+    func populateInfoPane(fuelStation: FuelStationAnnotation){
         self.stationName.text = fuelStation.station_name
         self.streetAddress.text = fuelStation.street_address
         if (fuelStation.is_parking_avaiable){

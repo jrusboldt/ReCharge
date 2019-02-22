@@ -26,7 +26,7 @@ extension ViewController: MKMapViewDelegate {
     // 1
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         // 2
-        guard let annotation = annotation as? FuelStation else { return nil }
+        guard let annotation = annotation as? FuelStationAnnotation else { return nil }
         // 3
         let identifier = "marker"
         var view: MKMarkerAnnotationView
@@ -49,7 +49,7 @@ extension ViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView){
         if let embeddedViewController = children.first as? InfoPaneViewController,
             let annotation = view.annotation,
-            let fuelStation = annotation as? FuelStation {
+            let fuelStation = annotation as? FuelStationAnnotation {
             
             embeddedViewController.annotation = fuelStation
             /*

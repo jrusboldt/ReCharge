@@ -9,7 +9,7 @@
 import MapKit
 import Contacts
 
-class FuelStation: NSObject, MKAnnotation {
+class FuelStationAnnotation: NSObject, MKAnnotation {
     // instance variables (some commented out for initial testing)
     let station_name : String
     //let station_phone : String?
@@ -56,6 +56,16 @@ class FuelStation: NSObject, MKAnnotation {
         self.is_parking_avaiable = isParkingAvaiable
         self.is_charging_avaiable = isChargingAvaiable
         self.coordinate = coordinate
+        
+        super.init()
+    }
+    
+    init(station_name: String, latitude: Double, longitude: Double) {
+        self.station_name = station_name
+        self.street_address = "Not Avaiable"
+        self.is_parking_avaiable = false
+        self.is_charging_avaiable = false
+        self.coordinate = CLLocationCoordinate2DMake(latitude, longitude)
         
         super.init()
     }
