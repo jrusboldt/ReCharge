@@ -118,7 +118,7 @@ class ViewController: UIViewController {
             let region = MKCoordinateRegion.init(center: location, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
             mapView.setRegion(region, animated: true)
             
-            getNREL(coordinate: location, amount: 5)
+            //getNREL(coordinate: location, amount: 5)
             
         }
     }
