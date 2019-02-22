@@ -23,6 +23,7 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
     let coordinate : CLLocationCoordinate2D
     let is_parking_avaiable : Bool
     let is_charging_avaiable : Bool
+    let is_paid: Bool
 
     /*
     init(JSONString: String) {
@@ -50,18 +51,20 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
     }
     */
 
-    init(stationName: String, streetAddress: String, isParkingAvaiable : Bool, isChargingAvaiable : Bool, coordinate: CLLocationCoordinate2D) {
+    init(stationName: String, streetAddress: String, isParkingAvaiable : Bool, isChargingAvaiable : Bool, isPaid: Bool, coordinate: CLLocationCoordinate2D) {
         self.station_name = stationName
         self.street_address = streetAddress
         self.is_parking_avaiable = isParkingAvaiable
         self.is_charging_avaiable = isChargingAvaiable
+        self.is_paid = isPaid
         self.coordinate = coordinate
         
         super.init()
     }
     
-    init(station_name: String, latitude: Double, longitude: Double) {
+    init(station_name: String, is_paid: Bool, latitude: Double, longitude: Double) {
         self.station_name = station_name
+        self.is_paid = is_paid
         self.street_address = "Not Avaiable"
         self.is_parking_avaiable = false
         self.is_charging_avaiable = false

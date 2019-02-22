@@ -41,6 +41,10 @@ extension ViewController: MKMapViewDelegate {
             view.canShowCallout = true
             view.calloutOffset = CGPoint(x: -5, y: 5)
             //view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+            
+            if (annotation.is_paid){
+                view.glyphText = "$"
+            }
         }
         return view
     }
@@ -144,11 +148,11 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                 //TODO figure out how to parse JSON object
                 
                 //hardcode in station data for West Lafette
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Armory", latitude: 40.4277617, longitude: -86.9162607))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Northwestern Parking Garage", latitude: 40.4296753, longitude: -86.9120266))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - University Street Garage", latitude: 40.426713, longitude: -86.917213))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Grant Street Parking Garage", latitude: 40.4244203, longitude: -86.9103211))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Harrison Street Garage", latitude: 40.421241, longitude: -86.917619))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Armory", is_paid: false, latitude: 40.4277617, longitude: -86.9162607))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Northwestern Parking Garage", is_paid: false, latitude: 40.4296753, longitude: -86.9120266))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - University Street Garage", is_paid: true, latitude: 40.426713, longitude: -86.917213))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Grant Street Parking Garage", is_paid: false, latitude: 40.4244203, longitude: -86.9103211))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Harrison Street Garage", is_paid: true, latitude: 40.421241, longitude: -86.917619))
                 
                 self?.addStationAnnotations()
             } catch let error as NSError {
@@ -186,16 +190,44 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
         }
     }
 
+    private func displaySystemLocationWarning(){
+        let alert = UIAlertController(title: "Location Services Permission Alert", message: "You need to give location permission to Re:Charge to experience all the features of the Re:Charge application.", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Go to Settings", style: .cancel, handler:{ action in
+            UIApplication.shared.open(URL(string:"App-Prefs:root=Privacy&path=LOCATION")!)
+            
+        }))
+        alert.addAction(UIAlertAction(title: "Ignore", style: .default, handler: nil))
+        
+        
+        self.present(alert, animated: true)
+    }
+    
     //check system wide location services
     func checkLocationServices() {
         if CLLocationManager.locationServicesEnabled() {
             setupLocationManager()
             checkLocationAuthorization()
             locationManager.startUpdatingLocation()
+            mapView.userTrackingMode = MKUserTrackingMode(rawValue: 2)!
         }
         else {
             // show alert to enable location services
+            displaySystemLocationWarning()
         }
+    }
+    
+    private func displayLocationWarning(){
+        let alert = UIAlertController(title: "Location Services Permission Alert", message: "You need to give location permission to Re:Charge to experience all the features of the Re:Charge application.", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Go to Settings", style: .cancel, handler:{ action in
+            UIApplication.shared.open(URL(string:UIApplication.openSettingsURLString)!)
+            
+        }))
+        alert.addAction(UIAlertAction(title: "Ignore", style: .default, handler: nil))
+        
+        
+        self.present(alert, animated: true)
     }
     
     //checks app specific location services
@@ -206,7 +238,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
             centerViewOnUserLocation()
             break
         case .denied:
-            //show alert to turn on location services in settings
+            displayLocationWarning()
             break
         case .notDetermined:
             //prompt user to allow location services when app in use
@@ -215,6 +247,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
         case .restricted:
             //location services are unavialable due to parental controls
             //show alert
+            displayLocationWarning()
             break
         case .authorizedAlways:
             break
@@ -229,9 +262,8 @@ extension ViewController: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        let region = MKCoordinateRegion.init(center: center, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
-                                             longitudinalMeters: Double(userSettings.proximity*regionInMeters))
-        //mapView.setRegion(region, animated: true)
+        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+        //self.mapView.setRegion(region, animated: true)
     }
     
     
