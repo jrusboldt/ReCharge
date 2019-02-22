@@ -6,6 +6,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/fragment_container" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/navigationView">
+
+    </FrameLayout>
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="0dp"
               android:layout_height="0dp"
@@ -30,6 +39,7 @@
             app:itemBackground="@color/colorBlack"
             app:itemIconTint="@color/colorWhite"
             app:itemTextColor="@color/colorWhite"
-            app:menu="@menu/navigation"/>
+            app:menu="@menu/navigation">
+    </android.support.design.widget.BottomNavigationView>
 
 </android.support.constraint.ConstraintLayout>

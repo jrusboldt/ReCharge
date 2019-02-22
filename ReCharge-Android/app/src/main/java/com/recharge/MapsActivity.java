@@ -1,14 +1,19 @@
 package com.recharge;
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.preference.PreferenceManager;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 import com.android.volley.Request;
@@ -17,12 +22,16 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -36,6 +45,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private final int DEFAULT_ZOOM = 15;
 
     private GoogleMap mMap;
+    private SupportMapFragment mapFragment;
+    private FusedLocationProviderClient fusedLocationClient;
+
+    private LatLng lastKnownLocation;
     private final int REQUEST_ACCESS_FINE_LOCATION = 1;
 
     @Override
@@ -47,30 +60,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         BottomNavigationView navigation = findViewById(R.id.navigationView);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        // Set up listener for the location
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        lastKnownLocation = new LatLng(DEFAULT_LOCLAT, DEFAULT_LOCLNG);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
-
-    // This is the listener for the navigation bar at the bottom of the screen
-    // This determines what should happen when each button is selected
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    return true;
-                case R.id.navigation_dashboard:
-                    return true;
-                case R.id.navigation_notifications:
-                    return true;
-            }
-            return false;
-        }
-    };
-
 
     /**
      * Manipulates the map once available.
@@ -84,23 +81,79 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Check for location permissions
-        // If we don't have it, then request for the permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            // We already have been granted location permissions
-            mMap.setMyLocationEnabled(true);
-        } else {
-            // We have yet to be granted location permissions
-            // The response to this request gets handled by the override function defined below
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ACCESS_FINE_LOCATION);
-        }
-
+        // Start us at the default location
         LatLng defaultLoc = new LatLng(DEFAULT_LOCLAT, DEFAULT_LOCLNG);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(defaultLoc));
         mMap.moveCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
 
-        // Request and display all the stations within the radius
-        requestAndDisplayStations(defaultLoc, 15);
+        // Get and move to the user's location if we can
+        // Don't ask for permission here. Wait until they hit the My Location Button
+        getAndMoveToUserLocation(false);
+
+        // Get the radius from the settings
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        int prefRadius = sp.getInt("seekbar", 5);
+
+        // Request and display all the stations within the radius determined by the user
+        requestAndDisplayStations(lastKnownLocation, prefRadius);
+    }
+
+    // This is the listener for the navigation bar at the bottom of the screen
+    // This determines what should happen when each button is selected
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_map:
+                    getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    getSupportFragmentManager().beginTransaction().show(mapFragment).commit();
+                    return true;
+                case R.id.navigation_preferences:
+                    Fragment frag = new SettingsFragment();
+                    getSupportFragmentManager().beginTransaction().hide(mapFragment).replace(R.id.fragment_container, frag).addToBackStack("home").commit();
+                    return true;
+                case R.id.navigation_my_location:
+                    getAndMoveToUserLocation(true);
+                    return false;
+            }
+            return false;
+        }
+    };
+
+    private void getAndMoveToUserLocation(boolean tryForPermission) {
+        // Check for location permissions
+        // If we have it, find the user. If not, do not do anything unless the "My Location" button is pressed
+        // If we don't have it, then request for the permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            // We already have been granted location permissions
+            if (!mMap.isMyLocationEnabled()) {
+                mMap.setMyLocationEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            }
+        } else if (tryForPermission) {
+            // We have yet to be granted location permissions
+            // The response to this request gets handled by the override function defined below
+            ActivityCompat.requestPermissions(mapFragment.getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ACCESS_FINE_LOCATION);
+            return;
+        } else {
+            return;
+        }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            lastKnownLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(lastKnownLocation, DEFAULT_ZOOM);
+                            mMap.animateCamera(cu);
+                        }
+                    }
+                });
     }
 
     @Override
@@ -114,6 +167,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     // Permission was granted
                     mMap.setMyLocationEnabled(true);
+                    mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                    getAndMoveToUserLocation(false);
 
                 } else {
                     // Permission was denied
@@ -134,7 +189,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String API_Key = getApplicationContext().getString(R.string.nrel_key);
         String urlString = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=" + API_Key +
                 "&latitude=" + latlng.latitude + "&longitude=" + latlng.longitude + "&radius=" + radius +
-                "&limit=50";
+                "&limit=100";
 
         // Create a request for the json file list of stations
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, urlString, null,
