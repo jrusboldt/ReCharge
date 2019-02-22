@@ -26,7 +26,7 @@ extension ViewController: MKMapViewDelegate {
     // 1
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         // 2
-        guard let annotation = annotation as? FuelStationAnnotation else { return nil }
+        guard let annotation = annotation as? FuelStation else { return nil }
         // 3
         let identifier = "marker"
         var view: MKMarkerAnnotationView
@@ -40,17 +40,45 @@ extension ViewController: MKMapViewDelegate {
             view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
             view.canShowCallout = true
             view.calloutOffset = CGPoint(x: -5, y: 5)
-            view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+            //view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
         }
         return view
     }
+    
+    // loads data into info
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView){
+        if let embeddedViewController = children.first as? InfoPaneViewController,
+            let annotation = view.annotation,
+            let fuelStation = annotation as? FuelStation {
+            
+            embeddedViewController.annotation = fuelStation
+            /*
+            embeddedViewController.stationName.text = fuelStation.station_name
+            embeddedViewController.streetAddress.text = fuelStation.street_address
+            if (fuelStation.is_parking_avaiable){
+                embeddedViewController.isParkingAvaiable.text = "Yes"
+            } else {
+                embeddedViewController.isParkingAvaiable.text = "No"
+            }
+            if (fuelStation.is_charging_avaiable){
+                embeddedViewController.isChargingAvaiable.text = "Yes"
+            } else {
+                embeddedViewController.isChargingAvaiable.text = "No"
+            }*/
+            embeddedViewController.populateInfoPane(fuelStation: fuelStation)
+            embeddedViewController.showInfoPane()
+        }
+        
+    }
+    
 }
 
 var userSettings : Settings = Settings(proximity: 3)
 
-class ViewController: UIViewController {
-
+class ViewController: UIViewController, InfoPaneDelegateProtocol {
+    
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var containerView: UIView!
     
     
     let locationManager = CLLocationManager()
@@ -62,11 +90,31 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.addSubview(containerView)
+        self.closeInfoPane()
         checkLocationServices()
     
         //userSettings = loadSettings()!
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        //TODO: check here for the right segue by name
+        (segue.destination as! InfoPaneViewController).delegate = self;
+    }
+    // InfoPane functions
+    func openInfoPane() {
+        containerView.isHidden = false
+    }
+    
+    func closeInfoPane() {
+        containerView.isHidden = true
+    }
+    
+    @IBAction func unwindToMapView(_ sender: UIStoryboardSegue) {
+        self.closeInfoPane()
+    }
+    
+    // map function
     /*
     private func loadSettings() -> Settings? {
         return NSKeyedUnarchiver.unarchiveObject(withFile: Settings.ArchiveURL.path) as? Settings
