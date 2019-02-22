@@ -46,22 +46,32 @@ extension ViewController: MKMapViewDelegate {
     }
 }
 
+var userSettings : Settings = Settings(proximity: 3)
 
 class ViewController: UIViewController {
 
     @IBOutlet weak var mapView: MKMapView!
     
-
     
     let locationManager = CLLocationManager()
-    let regionInMeters: Double = 1000
+    let regionInMeters: Double = 500
+    var firstLoad: Bool = true
     
     var stations = [FuelStationAnnotation]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         checkLocationServices()
+    
+        //userSettings = loadSettings()!
     }
+    
+    /*
+    private func loadSettings() -> Settings? {
+        return NSKeyedUnarchiver.unarchiveObject(withFile: Settings.ArchiveURL.path) as? Settings
+    }
+ */
     
     func getNREL(coordinate: CLLocationCoordinate2D, amount: Int) {
         
@@ -115,11 +125,12 @@ class ViewController: UIViewController {
     
     func centerViewOnUserLocation() {
         if let location = locationManager.location?.coordinate {
-            let region = MKCoordinateRegion.init(center: location, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+            var region = MKCoordinateRegion.init(center: location, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
+                                                 longitudinalMeters: Double(userSettings.proximity*1500))
+            
             mapView.setRegion(region, animated: true)
             
-            //getNREL(coordinate: location, amount: 5)
-            
+            getNREL(coordinate: location, amount: 5)
         }
     }
 
@@ -166,7 +177,8 @@ extension ViewController: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+        let region = MKCoordinateRegion.init(center: center, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
+                                             longitudinalMeters: Double(userSettings.proximity*regionInMeters))
         mapView.setRegion(region, animated: true)
     }
     

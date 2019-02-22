@@ -16,31 +16,34 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var saveButton: UIButton!
     
     override func viewDidLoad() {
-        print("Loading userSettings...")
+        super.viewDidLoad()
         
-        var userSettings = loadSettings()
+        sliderValue.text = "\(Int(userSettings.proximity))"
+        proximitySlider.value = Float((userSettings.proximity))
         
+        /*
         if userSettings != nil {
             print("userSettings is loading.")
-            sliderValue.text = "\(userSettings!.proximity)"
-            proximitySlider.value = Float((userSettings?.proximity)!)
+            sliderValue.text = "\(userSettings.proximity)"
+            proximitySlider.value = Float((userSettings.proximity))
         }
         else {
             print("userSettings is nill.")
-            sliderValue.text = "20"
+            sliderValue.text = "10"
             proximitySlider.value = 20
         }
+ */
         
-        proximitySlider.minimumValue = 0
-        proximitySlider.maximumValue = 100
-        super.viewDidLoad()
+        proximitySlider.minimumValue = 0.1
+        proximitySlider.maximumValue = 10
         
         // Do any additional setup after loading the view.
     }
     
     @IBAction func saveButtonTouched(_ sender: Any) {
         print("save button pressed")
-        saveProximity()
+        userSettings.proximity = Double(proximitySlider.value)
+        //saveProximity()
     }
     
     
@@ -48,9 +51,7 @@ class SettingsViewController: UIViewController {
         sliderValue.text = "\(Int(sender.value))"
     }
     
-    private func loadSettings() -> Settings? {
-        return NSKeyedUnarchiver.unarchiveObject(withFile: Settings.ArchiveURL.path) as? Settings
-    }
+    
     
     private func saveProximity() {
         let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(Double(proximitySlider.value), toFile: Settings.ArchiveURL.path)

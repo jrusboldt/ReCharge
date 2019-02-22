@@ -114,6 +114,7 @@
                                                 <state key="normal" title="Save"/>
                                                 <connections>
                                                     <action selector="saveButtonTouched:" destination="dcV-DW-nEl" eventType="touchUpInside" id="5I6-YW-SGk"/>
+                                                    <segue destination="BYZ-38-t0r" kind="show" id="zw4-fG-K7q"/>
                                                 </connections>
                                             </button>
                                         </barButtonItem>
@@ -137,4 +138,7 @@
             <point key="canvasLocation" x="1885.5999999999999" y="24.384236453201972"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="aGK-PR-seB"/>
+    </inferredMetricsTieBreakers>
 </document>
