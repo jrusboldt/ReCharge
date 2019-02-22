@@ -29,8 +29,8 @@ class InfoPaneViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.layer.cornerRadius = 5;
-        view.layer.masksToBounds = true;
+        self.view.layer.cornerRadius = 5;
+        self.view.layer.masksToBounds = true;
         // Do any additional setup after loading the view.
     }
     
