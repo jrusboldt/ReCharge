@@ -26,7 +26,7 @@ extension ViewController: MKMapViewDelegate {
     // 1
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         // 2
-        guard let annotation = annotation as? ChargingStationAnnotation else { return nil }
+        guard let annotation = annotation as? FuelStationAnnotation else { return nil }
         // 3
         let identifier = "marker"
         var view: MKMarkerAnnotationView
@@ -46,19 +46,32 @@ extension ViewController: MKMapViewDelegate {
     }
 }
 
+var userSettings : Settings = Settings(proximity: 3)
+
 class ViewController: UIViewController {
 
     @IBOutlet weak var mapView: MKMapView!
     
-
     
     let locationManager = CLLocationManager()
-    let regionInMeters: Double = 10000
+    let regionInMeters: Double = 500
+    var firstLoad: Bool = true
+    
+    var stations = [FuelStationAnnotation]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         checkLocationServices()
+    
+        //userSettings = loadSettings()!
     }
+    
+    /*
+    private func loadSettings() -> Settings? {
+        return NSKeyedUnarchiver.unarchiveObject(withFile: Settings.ArchiveURL.path) as? Settings
+    }
+ */
     
     func getNREL(coordinate: CLLocationCoordinate2D, amount: Int) {
         
@@ -71,14 +84,34 @@ class ViewController: UIViewController {
             do {
                 let json = try JSONSerialization.jsonObject(with: data!, options: []) as! [String: AnyObject]
                 
-                let stationArray = json["fuel_stations"]
-                print(stationArray)
+                print(json)
                 
+                //let stationArray = json["fuel_stations"]
+                //print(stationArray)
+                
+                //TODO figure out how to parse JSON object
+                
+                //hardcode in station data for West Lafette
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Armory", latitude: 40.4277617, longitude: -86.9162607))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Northwestern Parking Garage", latitude: 40.4296753, longitude: -86.9120266))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - University Street Garage", latitude: 40.426713, longitude: -86.917213))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Grant Street Parking Garage", latitude: 40.4244203, longitude: -86.9103211))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Harrison Street Garage", latitude: 40.421241, longitude: -86.917619))
+                
+                self?.addStationAnnotations()
             } catch let error as NSError {
                 print("Failed to load: \(error.localizedDescription)")
             }
         })
         task.resume()
+        
+    }
+    
+    //adds map annotations using array of stations pulled from NREL database
+    func addStationAnnotations() {
+        for i in stations {
+            mapView.addAnnotation(i)
+        }
     }
     
     private func registerMapAnnotationViews() {
@@ -92,15 +125,12 @@ class ViewController: UIViewController {
     
     func centerViewOnUserLocation() {
         if let location = locationManager.location?.coordinate {
-            let region = MKCoordinateRegion.init(center: location, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+            var region = MKCoordinateRegion.init(center: location, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
+                                                 longitudinalMeters: Double(userSettings.proximity*1500))
+            
             mapView.setRegion(region, animated: true)
             
-            
-            let annotation = ChargingStationAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude), title: "Station 1")
-            
             getNREL(coordinate: location, amount: 5)
-            
-            mapView.addAnnotation(annotation)
         }
     }
 
@@ -147,7 +177,8 @@ extension ViewController: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+        let region = MKCoordinateRegion.init(center: center, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
+                                             longitudinalMeters: Double(userSettings.proximity*regionInMeters))
         mapView.setRegion(region, animated: true)
     }
     

@@ -10,11 +10,15 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ReCharge-iOS/ViewController.swift"
+<<<<<<< HEAD
             timestampString = "572503767.408227"
+=======
+            timestampString = "572503518.099669"
+>>>>>>> feature/settings-view
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "75"
-            endingLineNumber = "75"
+            startingLineNumber = "85"
+            endingLineNumber = "85"
             landmarkName = "getNREL(coordinate:amount:)"
             landmarkType = "7">
             <Locations>
