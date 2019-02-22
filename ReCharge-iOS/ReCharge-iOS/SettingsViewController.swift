@@ -7,11 +7,22 @@
 
 import UIKit
 
+
 class SettingsViewController: UIViewController {
 
-
+    @IBOutlet weak var proximitySlider: UISlider!
+    @IBOutlet weak var sliderValue: UILabel!
+    
+    @IBAction func sliderValueChanged(_ sender: UISlider) {
+        sliderValue.text = "\(sender.value)"
+    }
+    
+    
     
     override func viewDidLoad() {
+        sliderValue.text = "\(proximitySlider.value)"
+        proximitySlider.minimumValue = 0
+        proximitySlider.maximumValue = 100
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.

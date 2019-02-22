@@ -45,10 +45,10 @@
             </objects>
             <point key="canvasLocation" x="53.600000000000001" y="22.906403940886701"/>
         </scene>
-        <!--View Controller-->
+        <!--Settings View Controller-->
         <scene sceneID="d43-kq-c9d">
             <objects>
-                <viewController id="dcV-DW-nEl" sceneMemberID="viewController">
+                <viewController id="dcV-DW-nEl" customClass="SettingsViewController" customModule="ReCharge_iOS" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Zzu-ZL-S5A">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -59,6 +59,9 @@
                                 <items>
                                     <navigationItem title="Settings" id="y8A-rg-XOz"/>
                                 </items>
+                                <connections>
+                                    <outlet property="delegate" destination="y8A-rg-XOz" id="IBw-59-oEU"/>
+                                </connections>
                             </navigationBar>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Proximity" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AEO-AS-ptF">
                                 <rect key="frame" x="16" y="121" width="71" height="21"/>
@@ -70,6 +73,10 @@
                             <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="20" minValue="0.0" maxValue="100" translatesAutoresizingMaskIntoConstraints="NO" id="QTy-WK-q4g">
                                 <rect key="frame" x="16" y="156" width="200" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <action selector="sliderValueChange:" destination="RQq-Fm-VMH" eventType="valueChanged" id="n1J-zK-Gr4"/>
+                                    <action selector="sliderValueChanged:" destination="dcV-DW-nEl" eventType="valueChanged" id="BmI-rG-ajD"/>
+                                </connections>
                             </slider>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Miles:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sic-KE-mRU">
                                 <rect key="frame" x="18" y="193" width="45" height="21"/>
@@ -89,8 +96,14 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="H6E-El-V80"/>
                     </view>
+                    <connections>
+                        <outlet property="proximitySlider" destination="QTy-WK-q4g" id="kRr-Hf-sVI"/>
+                        <outlet property="sliderValue" destination="vUv-R5-SMY" id="0ad-z0-PZO"/>
+                        <outlet property="view" destination="Zzu-ZL-S5A" id="pfS-wK-P9b"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YOa-ts-0KS" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="RQq-Fm-VMH" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="944" y="25"/>
         </scene>
