@@ -98,8 +98,12 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        //TODO: check here for the right segue by name
-        (segue.destination as! InfoPaneViewController).delegate = self;
+        // check for segue name
+        if (segue.identifier == "InfoPane") {
+            // set self as InfoPaneVC.delegate
+            (segue.destination as! InfoPaneViewController).delegate = self;
+        }
+        
     }
     // InfoPane functions
     func openInfoPane() {
@@ -227,7 +231,7 @@ extension ViewController: CLLocationManagerDelegate {
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         let region = MKCoordinateRegion.init(center: center, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
                                              longitudinalMeters: Double(userSettings.proximity*regionInMeters))
-        mapView.setRegion(region, animated: true)
+        //mapView.setRegion(region, animated: true)
     }
     
     
