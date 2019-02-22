@@ -37,6 +37,7 @@
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <navigationItem key="navigationItem" id="ca8-Ld-2ED"/>
                     <connections>
                         <outlet property="mapView" destination="cTs-cI-vzw" id="AhC-A2-Q1y"/>
                     </connections>
@@ -57,7 +58,18 @@
                                 <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <items>
-                                    <navigationItem title="Settings" id="y8A-rg-XOz"/>
+                                    <navigationItem title="Settings" id="y8A-rg-XOz">
+                                        <barButtonItem key="leftBarButtonItem" style="plain" id="g4W-fa-b6O">
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="LvT-EH-KpB">
+                                                <rect key="frame" x="16" y="7" width="83" height="30"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <state key="normal" title="Map"/>
+                                                <connections>
+                                                    <segue destination="BYZ-38-t0r" kind="showDetail" id="Slv-m2-iGV"/>
+                                                </connections>
+                                            </button>
+                                        </barButtonItem>
+                                    </navigationItem>
                                 </items>
                                 <connections>
                                     <outlet property="delegate" destination="y8A-rg-XOz" id="IBw-59-oEU"/>
