@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7BC2CA3F2217BCD900309445 /* FuelStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC2CA3E2217BCD900309445 /* FuelStation.swift */; };
+		7BCBE6AE2218CCDC009A6A8D /* InfoPaneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCBE6AD2218CCDC009A6A8D /* InfoPaneViewController.swift */; };
+		D0A3CC4D221F8E140028694C /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A3CC4C221F8E140028694C /* Settings.swift */; };
+		D0AA1123221BBE7300D493E0 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0AA1122221BBE7300D493E0 /* SettingsViewController.swift */; };
 		D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */; };
 		D0BEA760220A2DEA00FF2485 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA75F220A2DEA00FF2485 /* ViewController.swift */; };
 		D0BEA763220A2DEA00FF2485 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0BEA761220A2DEA00FF2485 /* Main.storyboard */; };
@@ -16,6 +20,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7BC2CA3E2217BCD900309445 /* FuelStation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FuelStation.swift; sourceTree = "<group>"; };
+		7BCBE6AD2218CCDC009A6A8D /* InfoPaneViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoPaneViewController.swift; sourceTree = "<group>"; };
+		D0A3CC4C221F8E140028694C /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		D0AA1122221BBE7300D493E0 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		D0BEA75A220A2DEA00FF2485 /* ReCharge-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ReCharge-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D0BEA75F220A2DEA00FF2485 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -56,8 +64,12 @@
 		D0BEA75C220A2DEA00FF2485 /* ReCharge-iOS */ = {
 			isa = PBXGroup;
 			children = (
+				7BC2CA3E2217BCD900309445 /* FuelStation.swift */,
+				D0AA1122221BBE7300D493E0 /* SettingsViewController.swift */,
+				D0A3CC4C221F8E140028694C /* Settings.swift */,
 				D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */,
 				D0BEA75F220A2DEA00FF2485 /* ViewController.swift */,
+				7BCBE6AD2218CCDC009A6A8D /* InfoPaneViewController.swift */,
 				D0BEA761220A2DEA00FF2485 /* Main.storyboard */,
 				D0BEA767220A2DEA00FF2485 /* Assets.xcassets */,
 				D0BEA769220A2DEA00FF2485 /* LaunchScreen.storyboard */,
@@ -137,8 +149,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0A3CC4D221F8E140028694C /* Settings.swift in Sources */,
 				D0BEA766220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld in Sources */,
+				7BCBE6AE2218CCDC009A6A8D /* InfoPaneViewController.swift in Sources */,
 				D0BEA760220A2DEA00FF2485 /* ViewController.swift in Sources */,
+				7BC2CA3F2217BCD900309445 /* FuelStation.swift in Sources */,
+				D0AA1123221BBE7300D493E0 /* SettingsViewController.swift in Sources */,
 				D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -286,6 +302,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 99HVACPT39;
 				INFOPLIST_FILE = "ReCharge-iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -303,6 +320,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 99HVACPT39;
 				INFOPLIST_FILE = "ReCharge-iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
