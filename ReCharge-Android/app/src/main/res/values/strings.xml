@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Re:Charge</string>
     <string name="title_activity_maps">Re:Charge</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_map">Map</string>
+    <string name="title_preferences">Settings</string>
+    <string name="title_my_location">Location</string>
+    <string name="title_station_search">Search</string>
 </resources>

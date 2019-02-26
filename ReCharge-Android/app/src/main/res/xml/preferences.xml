@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:id="@+id/settings">
+
+    <SeekBarPreference
+            android:key="seekbar"
+            android:icon="@drawable/ic_zoom_out_map_black_24dp"
+            android:title="Proximity Radius (Miles)"
+            android:summary="How far away do you want to see stations?"
+            android:max="100"
+            android:defaultValue="5"/>
+
+</PreferenceScreen>
