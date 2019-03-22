@@ -34,6 +34,7 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
         TextView distance_tv = view.findViewById(R.id.distance);
         TextView chargingAvailability_tv = view.findViewById(R.id.charging_availability);
         TextView parkingAvailability_tv = view.findViewById(R.id.parking_availability);
+        TextView isFree_tv = view.findViewById(R.id.isFree);
 
         name_tv.setText(marker.getTitle());
         details_tv.setText("Address: " + marker.getSnippet());
@@ -48,6 +49,7 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
         distance_tv.setText("Distance: " + Double.toString(rounded) + " meters");
         chargingAvailability_tv.setText("Charging Availability: " + infoWindowData.getChargingAvailability());
         parkingAvailability_tv.setText("Parking Availability: " + infoWindowData.getParkingAvailability());
+        isFree_tv.setText("Public Status: " + infoWindowData.getPublicStatus());
 
         return view;
     }

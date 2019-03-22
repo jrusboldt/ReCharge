@@ -6,6 +6,8 @@ public class InfoWindowData {
     private String chargingAvailability;
     private String parkingAvailability;
 
+    private String publicStatus;
+
     public String getImage() {
         return image;
     }
@@ -44,5 +46,13 @@ public class InfoWindowData {
         } else {
             this.parkingAvailability = "Unknown";
         }
+    }
+
+    public void setPublicStatus(String status) {
+        this.publicStatus = status;
+    }
+
+    public String getPublicStatus() {
+        return this.publicStatus;
     }
 }

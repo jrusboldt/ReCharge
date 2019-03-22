@@ -1,13 +1,11 @@
 package com.recharge;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.preference.PreferenceManager;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,10 +16,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -61,6 +55,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private int lastRadiusCheck;
     private final int REQUEST_ACCESS_FINE_LOCATION = 1;
 
+    /**
+     * ---------------------------------------------------------
+     * onCreate - Executed when the MapsActivity is created.
+     * This is the main activity of the app and is executed before any of the UI is created.
+     * ---------------------------------------------------------
+     **/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,13 +83,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * Manipulates the map once available.
+     * ---------------------------------------------------------
+     * onMapReady - Executed once the map is available.
      * This callback is triggered when the map is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
-     */
+     * ---------------------------------------------------------
+     **/
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -114,8 +116,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         requestAndDisplayStations(lastKnownLocation, lastRadiusCheck, true);
     }
 
-    // This is the listener for the navigation bar at the bottom of the screen
-    // This determines what should happen when each button is selected
+    /**
+     * ---------------------------------------------------------
+     * bottomNavigationViewListener - Listener for the navigation bar at the bottom of the screen.
+     * This determines what should be done based on which button is pressed.
+     * ---------------------------------------------------------
+     **/
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -134,18 +140,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     getAndMoveToUserLocation(true, true);
                     getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     getSupportFragmentManager().beginTransaction().show(mapFragment).commit();
-                    return false;
+                    return true;
                 case R.id.navigation_station_search:
                     getAndMoveToUserLocation(true, false);
                     getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     getSupportFragmentManager().beginTransaction().show(mapFragment).commit();
                     requestAndDisplayStations(lastKnownLocation, lastRadiusCheck, false);
-                    return false;
+                    return true;
             }
             return false;
         }
     };
 
+    /**
+     * ---------------------------------------------------------
+     * isRadiusDifferent - Determines if the radius has changed.
+     * This helper function determines whether or not the radius has changed since the last time it was checked.
+     * ---------------------------------------------------------
+     **/
     private boolean isRadiusDifferent() {
         int newCheck = sp.getInt("seekbar", 5);
 
@@ -157,6 +169,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * ---------------------------------------------------------
+     * getAndMoveToUserLocation - Determines the user's current location and moves the camera to that position.
+     * This function verifies that the user has granted the app location permissions and, if so,
+     * determines the user's current location and then updates the camera to move to that location.
+     * ---------------------------------------------------------
+     **/
     private void getAndMoveToUserLocation(boolean tryForPermission, boolean move) {
         // Check for location permissions
         // If we have it, find the user. If not, do not do anything unless the "My Location" button is pressed
@@ -194,6 +213,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * ---------------------------------------------------------
+     * getRequestPermissionsResult - Executed when the user responds to a permission request
+     * This function is called once the user decides to either grant or deny permission for anything we have requested.
+     * This is where we can react to that decision appropriately.
+     * ---------------------------------------------------------
+     **/
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -219,6 +245,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * ---------------------------------------------------------
+     * requestAndDisplayStations - Requests for the list of stations from the NREL database and updates the map.
+     * This function calls the NREL database for the list of stations within the user's specified radius to them.
+     * Once the list is retrieved, all the stations are then added to the map for the user to see.
+     * ---------------------------------------------------------
+     **/
     public void requestAndDisplayStations(LatLng latlng, int radius, boolean override) {
         // Let the user know we're checking for stations
         if (!isRadiusDifferent() && !override) {
@@ -264,6 +297,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         distance);
                                 info.setDistance(distance[0]);
 
+                                info.setPublicStatus(station.getString("groups_with_access_code"));
                                 info.setChargingAvailability(false);
                                 info.setParkingAvailability(false);
                                 info.setImage("@drawable/ic_ev_station_black_24dp");
@@ -291,12 +325,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         queue.add(jsonObjectRequest);
     }
 
-    /*---------------------------------------------------------
-     *  getPathToStation - Launches Google Maps navigation
-     *      with turn-by-turn directions to the desired
-     *      charging station from the user's current location.
-     *---------------------------------------------------------
-     */
+    /**
+     * ---------------------------------------------------------
+     * getPathToStation - Launches Google Maps navigation
+     * with turn-by-turn directions to the desired
+     * charging station from the user's current location.
+     * ---------------------------------------------------------
+     **/
     public void getPathToStation(LatLng stationLoc) {
         Intent googleMapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="
                 + stationLoc.latitude + "," + stationLoc.longitude));
