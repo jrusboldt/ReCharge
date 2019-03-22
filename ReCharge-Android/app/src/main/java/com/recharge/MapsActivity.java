@@ -106,7 +106,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         getAndMoveToUserLocation(false, true);
 
         // Get the radius from the settings
-        lastRadiusCheck = sp.getInt("seekbar", 5);
+        lastRadiusCheck = sp.getInt("seekBar_Radius", 5);
 
         // Set the custom info windows
         CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(this);
@@ -159,7 +159,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * ---------------------------------------------------------
      **/
     private boolean isRadiusDifferent() {
-        int newCheck = sp.getInt("seekbar", 5);
+        int newCheck = sp.getInt("seekBar_Radius", 5);
 
         if (newCheck != lastRadiusCheck) {
             lastRadiusCheck = newCheck;

@@ -1,13 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:id="@+id/settings">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SeekBarPreference
-            android:key="seekbar"
+            android:key="seekBar_Radius"
             android:icon="@drawable/ic_zoom_out_map_black_24dp"
             android:title="Proximity Radius (Miles)"
-            android:summary="How far away do you want to see stations?"
+            android:summary="Maximum distance from current location to show charging stations"
             android:max="100"
             android:defaultValue="5"/>
+
+    <SwitchPreferenceCompat
+            android:key="switch_Available"
+            android:icon="@drawable/ic_check_black_24dp"
+            android:title="Available Stations"
+            android:summary="Display available charging stations"
+            android:defaultValue="true"/>
+
+    <SwitchPreferenceCompat
+            android:key="switch_Unavailable"
+            android:icon="@drawable/ic_close_black_24dp"
+            android:title="Unavailable Stations"
+            android:summary="Display unavailable charging stations"
+            android:defaultValue="true"/>
+
+    <SwitchPreferenceCompat
+            android:key="switch_Paid"
+            android:icon="@drawable/ic_attach_money_black_24dp"
+            android:title="Paid Stations"
+            android:summary="Display paid charging stations"
+            android:defaultValue="true"/>
+
+    <SwitchPreferenceCompat
+            android:key="switch_Free"
+            android:icon="@drawable/ic_money_off_black_24dp"
+            android:title="Cost Free Stations"
+            android:summary="Display cost free charging stations"
+            android:defaultValue="true"/>
+
+    <SwitchPreferenceCompat
+            android:key="switch_Level1Charging"
+            android:icon="@drawable/ic_battery_charging_30_black_24dp"
+            android:title="Level 1 EVSE Charging"
+            android:summary="Display Level 1 EVSE (Standard 110V Outlet) charging stations"
+            android:defaultValue="true"/>
+
+    <SwitchPreferenceCompat
+            android:key="switch_Level2Charging"
+            android:icon="@drawable/ic_battery_charging_60_black_24dp"
+            android:title="Level 2 EVSE Charging"
+            android:summary="Display Level 2 EVSE (J1772 Connector) charging stations"
+            android:defaultValue="true"/>
+
+    <SwitchPreferenceCompat
+            android:key="switch_DCCharging"
+            android:icon="@drawable/ic_battery_charging_90_black_24dp"
+            android:title="DC Fast Charging"
+            android:summary="Display DC fast charging stations"
+            android:defaultValue="true"/>
 
 </PreferenceScreen>
