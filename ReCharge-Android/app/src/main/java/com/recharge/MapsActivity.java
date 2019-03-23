@@ -37,23 +37,38 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    // Default location and zoom for map
-    // Right now, this location is the Purdue University Engineering Fountain
+    // Default constants
+    // The default location is currently the Purdue University Engineering Fountain
     private final double DEFAULT_LOCLAT = 40.4286;
     private final double DEFAULT_LOCLNG = -86.9138;
     private final int DEFAULT_ZOOM = 15;
 
+    // Permission constants
+    private final int REQUEST_ACCESS_FINE_LOCATION = 1;
+
+    // Preference constants
+    private final int PREFERENCES_CHANGE_NONE = 0;
+    private final int PREFERENCES_CHANGE_NONRADIUS = 1;
+    private final int PREFERENCES_CHANGE_RADIUS = 2;
+
+    // Map and station variables
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
-    private FusedLocationProviderClient fusedLocationClient;
-    private SharedPreferences sp;
+    private JSONObject stationListJSON;
 
+    // Preference variables
+    private SharedPreferences sp;
+    private HashMap<String, Integer> previousIntegerPreferences;
+    private HashMap<String, Boolean> previousBooleanPreferences;
+
+    // Location variables
+    private FusedLocationProviderClient fusedLocationClient;
     private LatLng lastKnownLocation;
-    private int lastRadiusCheck;
-    private final int REQUEST_ACCESS_FINE_LOCATION = 1;
 
     /**
      * ---------------------------------------------------------
@@ -74,8 +89,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         lastKnownLocation = new LatLng(DEFAULT_LOCLAT, DEFAULT_LOCLNG);
 
-        // Set up Preferences variable
+        // Set up preference variables
         sp = PreferenceManager.getDefaultSharedPreferences(this);
+        previousBooleanPreferences = new HashMap<>();
+        previousIntegerPreferences = new HashMap<>();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -105,15 +122,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Don't ask for permission here. Wait until they hit the My Location Button
         getAndMoveToUserLocation(false, true);
 
-        // Get the radius from the settings
-        lastRadiusCheck = sp.getInt("seekBar_Radius", 5);
-
         // Set the custom info windows
-        CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(this);
-        mMap.setInfoWindowAdapter(customInfoWindow);
+        mMap.setInfoWindowAdapter(new CustomInfoWindowGoogleMap(this));
 
         // Request and display all the stations within the radius determined by the user
-        requestAndDisplayStations(lastKnownLocation, lastRadiusCheck, true);
+        requestAndDisplayStations(lastKnownLocation, true);
     }
 
     /**
@@ -145,29 +158,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     getAndMoveToUserLocation(true, false);
                     getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     getSupportFragmentManager().beginTransaction().show(mapFragment).commit();
-                    requestAndDisplayStations(lastKnownLocation, lastRadiusCheck, false);
+                    requestAndDisplayStations(lastKnownLocation, false);
                     return true;
             }
             return false;
         }
     };
-
-    /**
-     * ---------------------------------------------------------
-     * isRadiusDifferent - Determines if the radius has changed.
-     * This helper function determines whether or not the radius has changed since the last time it was checked.
-     * ---------------------------------------------------------
-     **/
-    private boolean isRadiusDifferent() {
-        int newCheck = sp.getInt("seekBar_Radius", 5);
-
-        if (newCheck != lastRadiusCheck) {
-            lastRadiusCheck = newCheck;
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     /**
      * ---------------------------------------------------------
@@ -247,21 +243,73 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     /**
      * ---------------------------------------------------------
+     * havePreferencesChanged - Determines if the preferences have changed.
+     * This helper function determines whether or not the preferences have changed since the last time they were
+     * checked. The response uses one of the response code constants. This also updates the lists of previous
+     * preferences.
+     * ---------------------------------------------------------
+     **/
+    private int havePreferencesChanged() {
+        // Keep track of changes to preferences
+        int status = PREFERENCES_CHANGE_NONE;
+
+        // Compare the values of everything in the newPreferences with the values in the lastPreferences
+        for (HashMap.Entry<String, ?> i : sp.getAll().entrySet()) {
+            // Handle seekBar preferences
+            if (i.getKey().startsWith("seekBar")) {
+                if (previousIntegerPreferences.get(i.getKey()) != i.getValue()) {
+                    if (status < PREFERENCES_CHANGE_RADIUS) {
+                        status = PREFERENCES_CHANGE_RADIUS;
+                    }
+
+                    previousIntegerPreferences.put(i.getKey(), sp.getInt(i.getKey(), 5));
+                }
+
+                // Handle switch preferences
+            } else if (i.getKey().startsWith("switch")) {
+                if (previousBooleanPreferences.get(i.getKey()) != i.getValue()) {
+                    if (status < PREFERENCES_CHANGE_NONRADIUS) {
+                        status = PREFERENCES_CHANGE_NONRADIUS;
+                    }
+
+                    previousBooleanPreferences.put(i.getKey(), sp.getBoolean(i.getKey(), true));
+                }
+
+            } else {
+                // Handle other preference types here if they exist
+            }
+        }
+
+        // Return the status of the preferences check
+        return status;
+    }
+
+    /**
+     * ---------------------------------------------------------
      * requestAndDisplayStations - Requests for the list of stations from the NREL database and updates the map.
      * This function calls the NREL database for the list of stations within the user's specified radius to them.
      * Once the list is retrieved, all the stations are then added to the map for the user to see.
+     * The override flag forces the map to update regardless of whether the user's preferences have changed or not
      * ---------------------------------------------------------
      **/
-    public void requestAndDisplayStations(LatLng latlng, int radius, boolean override) {
-        // Let the user know we're checking for stations
-        if (!isRadiusDifferent() && !override) {
+    private void requestAndDisplayStations(LatLng latlng, boolean override) {
+        // Check if the user preferences have changed since the last update
+        // If not, let the user know the map is already up to date
+        int preferenceChangeResult = havePreferencesChanged();
+        if (!override && (preferenceChangeResult == PREFERENCES_CHANGE_NONE)) {
             Toast.makeText(this, "Up to date", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Reset the map
-        mMap.clear();
-        Toast.makeText(this, "Checking for stations...", Toast.LENGTH_SHORT).show();
+        // Notify the user that the map is updating
+        Toast.makeText(this, "Updating stations...", Toast.LENGTH_SHORT).show();
+
+        // If the radius was updated, then make a request for a new list of stations
+        // Otherwise, reuse the current list
+        if (!override && (preferenceChangeResult == PREFERENCES_CHANGE_NONRADIUS)) {
+            displayStations();
+            return;
+        }
 
         // Initialize the request queue
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -269,8 +317,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Build the request URL
         String API_Key = getApplicationContext().getString(R.string.nrel_key);
         String urlString = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=" + API_Key +
-                "&latitude=" + latlng.latitude + "&longitude=" + latlng.longitude + "&radius=" + lastRadiusCheck +
-                "&limit=100";
+                "&latitude=" + latlng.latitude + "&longitude=" + latlng.longitude + "&radius=" +
+                previousIntegerPreferences.get("seekBar_Radius") + "&limit=100";
 
         // Create a request for the json file list of stations
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, urlString, null,
@@ -278,39 +326,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        try {
-                            // Get the stations out of the response
-                            JSONArray jsonArray = response.getJSONArray("fuel_stations");
-
-                            // Add a maker to the map for each station by getting the coordinates and name of each station
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject station = jsonArray.getJSONObject(i);
-                                String stationName = station.getString("station_name");
-                                String stationAddress = station.getString("street_address") + ", " +
-                                        station.getString("city") + ", " + station.getString("state");
-                                LatLng stationLatLng = new LatLng(station.getDouble("latitude"), station.getDouble("longitude"));
-
-                                InfoWindowData info = new InfoWindowData();
-                                float distance[] = new float[2];
-                                Location.distanceBetween(lastKnownLocation.latitude,
-                                        lastKnownLocation.longitude, stationLatLng.latitude, stationLatLng.longitude,
-                                        distance);
-                                info.setDistance(distance[0]);
-
-                                info.setPublicStatus(station.getString("groups_with_access_code"));
-                                info.setChargingAvailability(false);
-                                info.setParkingAvailability(false);
-                                info.setImage("@drawable/ic_ev_station_black_24dp");
-
-                                MarkerOptions markerOptions = new MarkerOptions();
-                                markerOptions.position((stationLatLng)).title(stationName).snippet(stationAddress);
-                                Marker m = mMap.addMarker(markerOptions);
-                                m.setTag(info);
-                            }
-
-                        } catch (Exception e) {
-                            // Handle Errors Here
-                        }
+                        stationListJSON = response;
+                        displayStations();
                     }
                 }, new Response.ErrorListener() {
 
@@ -327,12 +344,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     /**
      * ---------------------------------------------------------
+     * displayStations - Helper function for requestAndDisplayStations function.
+     * This function handles adding, removing, and modifying all station markers on the map.
+     * This function relies on the stationListJSON variable, which is updated through requestAndDisplayStations
+     * ---------------------------------------------------------
+     **/
+    private void displayStations() {
+        // Clear all the markers on the map
+        mMap.clear();
+
+        // Add the stations to the map as new markers
+        try {
+            // Get the stations list
+            JSONArray jsonArray = stationListJSON.getJSONArray("fuel_stations");
+
+            // Add a marker to the map for each station by getting the coordinates and name of each station
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject station = jsonArray.getJSONObject(i);
+                String stationName = station.getString("station_name");
+                String stationAddress = station.getString("street_address") + ", " +
+                        station.getString("city") + ", " + station.getString("state");
+                LatLng stationLatLng = new LatLng(station.getDouble("latitude"), station.getDouble("longitude"));
+
+                InfoWindowData info = new InfoWindowData();
+                float distance[] = new float[2];
+                Location.distanceBetween(lastKnownLocation.latitude,
+                        lastKnownLocation.longitude, stationLatLng.latitude, stationLatLng.longitude,
+                        distance);
+                info.setDistance(distance[0]);
+
+                info.setPublicStatus(station.getString("groups_with_access_code"));
+                info.setChargingAvailability(false);
+                info.setParkingAvailability(false);
+                info.setImage("@drawable/ic_ev_station_black_24dp");
+
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position((stationLatLng)).title(stationName).snippet(stationAddress);
+                Marker m = mMap.addMarker(markerOptions);
+                m.setTag(info);
+            }
+        } catch (Exception e) {
+            // Handle Errors Here
+        }
+
+        Toast.makeText(this, "Stations updated", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * ---------------------------------------------------------
      * getPathToStation - Launches Google Maps navigation
      * with turn-by-turn directions to the desired
      * charging station from the user's current location.
      * ---------------------------------------------------------
      **/
-    public void getPathToStation(LatLng stationLoc) {
+    private void getPathToStation(LatLng stationLoc) {
         Intent googleMapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="
                 + stationLoc.latitude + "," + stationLoc.longitude));
         googleMapIntent.setPackage("com.google.android.apps.maps");

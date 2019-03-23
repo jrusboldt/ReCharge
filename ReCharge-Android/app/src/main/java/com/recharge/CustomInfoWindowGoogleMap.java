@@ -13,7 +13,7 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
 
     private Context context;
 
-    public CustomInfoWindowGoogleMap(Context ctx){
+    public CustomInfoWindowGoogleMap(Context ctx) {
         context = ctx;
     }
 
@@ -24,7 +24,7 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
 
     @Override
     public View getInfoContents(Marker marker) {
-        View view = ((Activity)context).getLayoutInflater()
+        View view = ((Activity) context).getLayoutInflater()
                 .inflate(R.layout.adapter_info_window, null);
 
         TextView name_tv = view.findViewById(R.id.name);
@@ -45,7 +45,7 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
                 "drawable", context.getPackageName());
         //img.setImageResource(imageId);
 
-        Double rounded = Math.round(infoWindowData.getDistance()*100.0)/100.0;
+        Double rounded = Math.round(infoWindowData.getDistance() * 100.0) / 100.0;
         distance_tv.setText("Distance: " + Double.toString(rounded) + " meters");
         chargingAvailability_tv.setText("Charging Availability: " + infoWindowData.getChargingAvailability());
         parkingAvailability_tv.setText("Parking Availability: " + infoWindowData.getParkingAvailability());
