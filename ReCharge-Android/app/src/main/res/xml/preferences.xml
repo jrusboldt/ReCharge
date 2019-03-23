@@ -24,6 +24,13 @@
             android:defaultValue="true"/>
 
     <SwitchPreferenceCompat
+            android:key="switch_Unknown"
+            android:icon="@drawable/ic_priority_high_black_24dp"
+            android:title="Unknown Availability Stations"
+            android:summary="Display unknown availability charging stations"
+            android:defaultValue="true"/>
+
+    <SwitchPreferenceCompat
             android:key="switch_Paid"
             android:icon="@drawable/ic_attach_money_black_24dp"
             android:title="Paid Stations"

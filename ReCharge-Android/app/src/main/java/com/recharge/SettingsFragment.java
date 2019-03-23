@@ -10,7 +10,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
-        // Set the minimum value for the seekbar slider
+        // Set the minimum value for the seekBar slider
         SeekBarPreference seekBar = (SeekBarPreference) findPreference("seekBar_Radius");
         seekBar.setMin(1);
     }

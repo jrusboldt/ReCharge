@@ -56,9 +56,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private final int PREFERENCES_CHANGE_NONRADIUS = 1;
     private final int PREFERENCES_CHANGE_RADIUS = 2;
 
+    // Request constants
+    private final int REQUEST_API_NREL = 1;
+    private final int REQUEST_API_SERVER = 2;
+    private final String REQUEST_API_SERVER_URL = "http://18.224.1.103:8080/api/status/all";
+
     // Map and station variables
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
+    private JSONObject stationAvailabilityJSON;
     private JSONObject stationListJSON;
 
     // Preference variables
@@ -117,6 +123,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng defaultLoc = new LatLng(DEFAULT_LOCLAT, DEFAULT_LOCLNG);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(defaultLoc));
         mMap.moveCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
+        mMap.getUiSettings().setZoomControlsEnabled(true);
 
         // Get and move to the user's location if we can
         // Don't ask for permission here. Wait until they hit the My Location Button
@@ -304,30 +311,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Notify the user that the map is updating
         Toast.makeText(this, "Updating stations...", Toast.LENGTH_SHORT).show();
 
-        // If the radius was updated, then make a request for a new list of stations
-        // Otherwise, reuse the current list
+        // If the radius was not updated, then skip requesting the NREL database for a new list
+        // Instead, skip to requesting for updates on the availability of the charging stations from our server
         if (!override && (preferenceChangeResult == PREFERENCES_CHANGE_NONRADIUS)) {
-            displayStations();
+            sendAPIRequest(REQUEST_API_SERVER, Request.Method.GET, REQUEST_API_SERVER_URL);
             return;
         }
 
+        // If the radius was updated, then request for a new list of stations from the NREL database
+        // Get the API_Key and build the request URL
+        String API_Key = getApplicationContext().getString(R.string.nrel_key);
+        String URL = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=" + API_Key +
+                "&latitude=" + latlng.latitude + "&longitude=" + latlng.longitude + "&radius=" +
+                previousIntegerPreferences.get("seekBar_Radius") + "&fuel_type=ELEC" + "&limit=100";
+
+        // Send the request to the NREL database for the station list
+        sendAPIRequest(REQUEST_API_NREL, Request.Method.GET, URL);
+    }
+
+    /**
+     * ---------------------------------------------------------
+     * sendAPIRequest - Function to send an API call to some URL
+     * This function is used to get the station list from the NREL database and also the availability status
+     * of charging stations from our server. If we call the NREL database first, then it will call our server
+     * right after. After getting the availability update, it will then call the displayStations function
+     * to display the results on the map.
+     * ---------------------------------------------------------
+     **/
+    private void sendAPIRequest(int site, int request, String URL) {
         // Initialize the request queue
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        // Build the request URL
-        String API_Key = getApplicationContext().getString(R.string.nrel_key);
-        String urlString = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=" + API_Key +
-                "&latitude=" + latlng.latitude + "&longitude=" + latlng.longitude + "&radius=" +
-                previousIntegerPreferences.get("seekBar_Radius") + "&limit=100";
-
         // Create a request for the json file list of stations
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, urlString, null,
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, URL, null,
                 new Response.Listener<JSONObject>() {
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        stationListJSON = response;
-                        displayStations();
+                        // If this is a response from the NREL database, save the response and then call
+                        // our server to get station availability
+                        if (site == REQUEST_API_NREL) {
+                            stationListJSON = response;
+                            sendAPIRequest(REQUEST_API_SERVER, Request.Method.GET, REQUEST_API_SERVER_URL);
+
+                            // If this is a response from our server, save the response and then call displayStations
+                        } else if (site == REQUEST_API_SERVER) {
+                            stationAvailabilityJSON = response;
+                            displayStations();
+                        }
                     }
                 }, new Response.ErrorListener() {
 
@@ -360,7 +391,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             // Add a marker to the map for each station by getting the coordinates and name of each station
             for (int i = 0; i < jsonArray.length(); i++) {
+                // Get the station from the station list
                 JSONObject station = jsonArray.getJSONObject(i);
+
+                // Check if the station matches the user preferences
+                // Check if available, unavailable, or unknown
+                // TODO: Use station availability response from our server
+
+                // Check if paid or free
+                boolean paid = previousBooleanPreferences.get("switch_Paid");
+                boolean free = previousBooleanPreferences.get("switch_Free");
+                String cardsAccepted = station.getString("cards_accepted");
+
+                if ((!paid && !cardsAccepted.equals("null")) || (!free && cardsAccepted.equals("null"))) {
+                    continue;
+                }
+
+                // Check if level 1, level 2, or DC
+                boolean level1 = previousBooleanPreferences.get("switch_Level1Charging");
+                boolean level2 = previousBooleanPreferences.get("switch_Level2Charging");
+                boolean DC = previousBooleanPreferences.get("switch_DCCharging");
+                String hasLevel1 = station.getString("ev_level1_evse_num");
+                String hasLevel2 = station.getString("ev_level2_evse_num");
+                String hasDC = station.getString("ev_dc_fast_num");
+
+                if ((!level1 && !hasLevel1.equals("null")) || (!level2 && !hasLevel2.equals("null")) || (!DC && !hasDC.equals("null"))) {
+                    continue;
+                }
+
                 String stationName = station.getString("station_name");
                 String stationAddress = station.getString("street_address") + ", " +
                         station.getString("city") + ", " + station.getString("state");
