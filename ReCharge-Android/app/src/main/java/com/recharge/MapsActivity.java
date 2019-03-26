@@ -101,7 +101,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         previousIntegerPreferences = new HashMap<>();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment = SupportMapFragment.newInstance();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapFragment).commit();
         mapFragment.getMapAsync(this);
     }
 
@@ -150,22 +151,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             switch (item.getItemId()) {
                 case R.id.navigation_map:
                     getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                    getSupportFragmentManager().beginTransaction().show(mapFragment).commit();
-                    return true;
-                case R.id.navigation_preferences:
-                    Fragment frag = new SettingsFragment();
-                    getSupportFragmentManager().beginTransaction().hide(mapFragment).replace(R.id.fragment_container, frag).addToBackStack("home").commit();
-                    return true;
-                case R.id.navigation_my_location:
-                    getAndMoveToUserLocation(true, true);
-                    getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                    getSupportFragmentManager().beginTransaction().show(mapFragment).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapFragment).commit();
                     return true;
                 case R.id.navigation_station_search:
-                    getAndMoveToUserLocation(true, false);
                     getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                    getSupportFragmentManager().beginTransaction().show(mapFragment).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapFragment).commit();
+                    getAndMoveToUserLocation(true, false);
                     requestAndDisplayStations(lastKnownLocation, false);
+                    return true;
+                case R.id.navigation_my_location:
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapFragment).commit();
+                    getAndMoveToUserLocation(true, true);
+                    return true;
+                case R.id.navigation_preferences:
+                    Fragment settingsFragment = new SettingsFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, settingsFragment).addToBackStack("home").commit();
                     return true;
             }
             return false;
