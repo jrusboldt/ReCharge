@@ -25,8 +25,15 @@ class SettingsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // set up settings screen based on user settings object
         sliderValue.text = "\(Int(userSettings.proximity))"
         proximitySlider.value = Float((userSettings.proximity))
+        availableSwitch.setOn(userSettings.availableToggle, animated: false)
+        busySwitch.setOn(userSettings.busyToggle, animated: false)
+        freeSwitch.setOn(userSettings.freeToggle, animated: false)
+        paidSwitch.setOn(userSettings.paidToggle, animated: false)
+        standardSwitch.setOn(userSettings.standardToggle, animated: false)
+        fastSwitch.setOn(userSettings.fastToggle, animated: false)
         
         /*
         if userSettings != nil {
@@ -49,8 +56,27 @@ class SettingsViewController: UIViewController {
     
     @IBAction func saveButtonTouched(_ sender: Any) {
         print("save button pressed")
+        
+        // sace proximity value
         userSettings.proximity = Double(proximitySlider.value)
-        //saveProximity()
+        
+        // save available toggle value
+        userSettings.availableToggle = availableSwitch.isOn
+        
+        // save busy toggle value
+        userSettings.busyToggle = busySwitch.isOn
+        
+        // save free toggle value
+        userSettings.freeToggle = freeSwitch.isOn
+        
+        // save paid toggle value
+        userSettings.paidToggle = paidSwitch.isOn
+        
+        // save standard toggle switch
+        userSettings.standardToggle = standardSwitch.isOn
+        
+        // save fast toggle switch
+        userSettings.fastToggle = fastSwitch.isOn
     }
     
     
@@ -69,17 +95,17 @@ class SettingsViewController: UIViewController {
         }
     }
     
+    
     @IBAction func availableSwitchTouched(_ sender: Any) {
         //get current switch value
         let value = availableSwitch.isOn
         
         print("available switch pressed, value: \(value)")
         
-        //save new value in user settings
-        userSettings.availableToggle = value
         //flip switch
         availableSwitch.setOn(value, animated: true)
     }
+    
     
     @IBAction func busySwitchTouched(_ sender: Any) {
         //get current switch value
@@ -87,11 +113,10 @@ class SettingsViewController: UIViewController {
         
         print("busy switch pressed, value: \(value)")
         
-        //save new value in user settings
-        userSettings.busyToggle = value
         //flip switch
         busySwitch.setOn(value, animated: true)
     }
+    
     
     @IBAction func freeSwitchTouched(_ sender: Any) {
         //get current switch value
@@ -99,11 +124,10 @@ class SettingsViewController: UIViewController {
         
         print("free switch pressed, value: \(value)")
         
-        //save new value in user settings
-        userSettings.freeToggle = value
         //flip switch
         freeSwitch.setOn(value, animated: true)
     }
+    
     
     @IBAction func paidSwitchTouched(_ sender: Any) {
         //get current switch value
@@ -111,11 +135,10 @@ class SettingsViewController: UIViewController {
         
         print("paid switch pressed, value: \(value)")
         
-        //save new value in user settings
-        userSettings.paidToggle = value
         //flip switch
         paidSwitch.setOn(value, animated: true)
     }
+    
     
     @IBAction func standardSwitchTouched(_ sender: Any) {
         //get current switch value
@@ -123,11 +146,10 @@ class SettingsViewController: UIViewController {
         
         print("standard switch pressed, value: \(value)")
         
-        //save new value in user settings
-        userSettings.standardToggle = value
         //flip switch
         standardSwitch.setOn(value, animated: true)
     }
+    
     
     @IBAction func fastSwitchTouched(_ sender: Any) {
         //get current switch value
@@ -135,11 +157,7 @@ class SettingsViewController: UIViewController {
         
         print("fast switch pressed, value: \(value)")
         
-        //save new value in user settings
-        userSettings.fastToggle = value
         //flip switch
         fastSwitch.setOn(value, animated: true)
     }
-    
-    
 }
