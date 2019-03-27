@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.preference.PreferenceManager;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.content.Intent;
 import android.net.Uri;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -64,6 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     // Map and station variables
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
+    private BottomSheetBehavior bottomSheetBehavior;
     private JSONObject stationAvailabilityJSON;
     private JSONObject stationListJSON;
 
@@ -77,10 +80,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LatLng lastKnownLocation;
 
     /**
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      * onCreate - Executed when the MapsActivity is created.
      * This is the main activity of the app and is executed before any of the UI is created.
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      **/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +103,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         previousBooleanPreferences = new HashMap<>();
         previousIntegerPreferences = new HashMap<>();
 
+        // Set up the bottom sheet
+        View bottomSheet = findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetBehavior.setPeekHeight(120);
+        bottomSheetBehavior.setHideable(true);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = SupportMapFragment.newInstance();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapFragment).commit();
@@ -107,14 +117,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      * onMapReady - Executed once the map is available.
      * This callback is triggered when the map is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      **/
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -130,6 +140,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Don't ask for permission here. Wait until they hit the My Location Button
         getAndMoveToUserLocation(false, true);
 
+        // Set the bottom sheet listeners
+        mMap.setOnMarkerClickListener(mOnMarkerClickListener);
+        mMap.setOnMapClickListener(mOnMapClickListener);
+
         // Set the custom info windows
         mMap.setInfoWindowAdapter(new CustomInfoWindowGoogleMap(this));
 
@@ -138,16 +152,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      * bottomNavigationViewListener - Listener for the navigation bar at the bottom of the screen.
      * This determines what should be done based on which button is pressed.
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      **/
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(MenuItem item) {
+            // Make sure the bottom sheet is closed
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
             switch (item.getItemId()) {
                 case R.id.navigation_map:
                     getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -173,11 +190,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     };
 
     /**
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      * getAndMoveToUserLocation - Determines the user's current location and moves the camera to that position.
      * This function verifies that the user has granted the app location permissions and, if so,
      * determines the user's current location and then updates the camera to move to that location.
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      **/
     private void getAndMoveToUserLocation(boolean tryForPermission, boolean move) {
         // Check for location permissions
@@ -217,11 +234,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      * getRequestPermissionsResult - Executed when the user responds to a permission request
      * This function is called once the user decides to either grant or deny permission for anything we have requested.
      * This is where we can react to that decision appropriately.
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      **/
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -249,12 +266,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      * havePreferencesChanged - Determines if the preferences have changed.
      * This helper function determines whether or not the preferences have changed since the last time they were
      * checked. The response uses one of the response code constants. This also updates the lists of previous
      * preferences.
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      **/
     private int havePreferencesChanged() {
         // Keep track of changes to preferences
@@ -292,12 +309,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      * requestAndDisplayStations - Requests for the list of stations from the NREL database and updates the map.
      * This function calls the NREL database for the list of stations within the user's specified radius to them.
      * Once the list is retrieved, all the stations are then added to the map for the user to see.
      * The override flag forces the map to update regardless of whether the user's preferences have changed or not
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      **/
     private void requestAndDisplayStations(LatLng latlng, boolean override) {
         // Check if the user preferences have changed since the last update
@@ -330,13 +347,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      * sendAPIRequest - Function to send an API call to some URL
      * This function is used to get the station list from the NREL database and also the availability status
      * of charging stations from our server. If we call the NREL database first, then it will call our server
      * right after. After getting the availability update, it will then call the displayStations function
      * to display the results on the map.
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      **/
     private void sendAPIRequest(int site, int request, String URL) {
         // Initialize the request queue
@@ -374,11 +391,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      * displayStations - Helper function for requestAndDisplayStations function.
      * This function handles adding, removing, and modifying all station markers on the map.
      * This function relies on the stationListJSON variable, which is updated through requestAndDisplayStations
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      **/
     private void displayStations() {
         // Clear all the markers on the map
@@ -396,7 +413,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 // Check if the station matches the user preferences
                 // Check if available, unavailable, or unknown
-                // TODO: Use station availability response from our server
+                // TODO: Use station availability response from our server currently saved in "stationAvailabilityJSON"
+
 
                 // Check if paid or free
                 boolean paid = previousBooleanPreferences.get("switch_Paid");
@@ -418,6 +436,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if ((!level1 && !hasLevel1.equals("null")) || (!level2 && !hasLevel2.equals("null")) || (!DC && !hasDC.equals("null"))) {
                     continue;
                 }
+
+                // Get the working status of the charging station
+                // The status will be "E" if the station is Open
+                // The status will be "P" if the station is Planned to be opened
+                // The status will be "T" if the station is Temporarily Unavailable
+                // Get the "expected_date" value to see the estimated date of opening / reopening
+                String status = station.getString("status_code");
+                // TODO: Display the station status to the user
 
                 String stationName = station.getString("station_name");
                 String stationAddress = station.getString("street_address") + ", " +
@@ -449,11 +475,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * ---------------------------------------------------------
-     * getPathToStation - Launches Google Maps navigation
-     * with turn-by-turn directions to the desired
+     * ----------------------------------------------------------------------------------------------------------------
+     * OnMarkerClickListener - Listener for when the markers in the map are clicked (or touched).
+     * This brings up the bottom sheet and (after implementation) will display the station info in the sheet.
+     * ----------------------------------------------------------------------------------------------------------------
+     **/
+    private GoogleMap.OnMarkerClickListener mOnMarkerClickListener = new GoogleMap.OnMarkerClickListener() {
+        @Override
+        public boolean onMarkerClick(Marker marker) {
+            // Move the camera to the marker
+            CameraUpdate cu = CameraUpdateFactory.newLatLng(marker.getPosition());
+            mMap.animateCamera(cu);
+
+            // Update the info in the bottom sheet to be relevant to the marker that was selected
+            // TODO: Update info in bottom sheet to match marker so we can remove the old info windows
+            marker.showInfoWindow();
+
+            // Make the bottom sheet visible, but leave it collapsed. Let the user decide to open it
+            // TODO: Make it so the map size shrinks/grows with the bottom sheet opening/closing and keep the marker centered
+            // TODO: Also perhaps make the marker animated to indicate clearly which marker the user is looking at
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+            // Return true
+            return true;
+        }
+    };
+
+    /**
+     * ----------------------------------------------------------------------------------------------------------------
+     * OnMapClickListener - Listener for when the map is clicked (or touched).
+     * This simply closes the bottom sheet when the user clicks anywhere in the map
+     * ----------------------------------------------------------------------------------------------------------------
+     **/
+    private GoogleMap.OnMapClickListener mOnMapClickListener = new GoogleMap.OnMapClickListener() {
+        @Override
+        public void onMapClick(LatLng latLng) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+    };
+
+    /**
+     * ----------------------------------------------------------------------------------------------------------------
+     * getPathToStation - Launches Google Maps navigation with turn-by-turn directions to the desired
      * charging station from the user's current location.
-     * ---------------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------------------
      **/
     private void getPathToStation(LatLng stationLoc) {
         Intent googleMapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="
