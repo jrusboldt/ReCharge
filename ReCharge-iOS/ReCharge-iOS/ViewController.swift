@@ -97,6 +97,10 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if mapView.annotations.count != 0 {
+            mapView.removeAnnotation(mapView!.annotations as! MKAnnotation)
+        }
+        
         view.addSubview(containerView)
         self.closeInfoPane()
         checkLocationServices()
@@ -145,7 +149,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     
     func getNREL(coordinate: CLLocationCoordinate2D, amount: Int) {
         
-        let urlString = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=OxpIDL7uE8O60BL52DC7YYp3T1mq4uy01wlLw5bK&latitude=\(coordinate.latitude)&longitude=\(coordinate.longitude)&radius=infinite&fuel_type=ELEC&limit=\(amount)"
+        let urlString = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=OxpIDL7uE8O60BL52DC7YYp3T1mq4uy01wlLw5bK&latitude=\(coordinate.latitude)&longitude=\(coordinate.longitude)&radius=\(userSettings.proximity)&fuel_type=ELEC&limit=\(amount)"
         
         guard let url = URL(string: urlString) else { return }
     
@@ -221,8 +225,8 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     
     func centerViewOnUserLocation() {
         if let location = locationManager.location?.coordinate {
-            var region = MKCoordinateRegion.init(center: location, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
-                                                 longitudinalMeters: Double(userSettings.proximity*1500))
+            let region = MKCoordinateRegion.init(center: location, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
+                                                 longitudinalMeters: Double(userSettings.proximity*regionInMeters))
             
             mapView.setRegion(region, animated: true)
             
