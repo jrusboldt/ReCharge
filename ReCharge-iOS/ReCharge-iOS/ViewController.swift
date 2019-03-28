@@ -12,6 +12,7 @@ import CoreLocation
 class ChargingStationAnnotation: NSObject, MKAnnotation {
     
     var coordinate: CLLocationCoordinate2D
+    //var annotations: [FuelStationAnnotation]
     let title: String?
     
     
@@ -35,14 +36,16 @@ extension ViewController: MKMapViewDelegate {
             as? MKMarkerAnnotationView {
             dequeuedView.annotation = annotation
             view = dequeuedView
+            view.displayPriority = .required
         } else {
             // 5
             view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
             view.canShowCallout = true
             view.calloutOffset = CGPoint(x: -5, y: 5)
+            view.displayPriority = .required
             //view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
             
-            if (annotation.is_paid){
+            if (annotation.isPaid){
                 view.glyphText = "$"
             }
         }
@@ -94,9 +97,15 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if mapView.annotations.count != 0 {
+            print("annotations removed")
+            mapView.removeAnnotation(mapView!.annotations as! MKAnnotation)
+        }
+        
         view.addSubview(containerView)
         self.closeInfoPane()
         checkLocationServices()
+        //self.mapView.showAnnotations(self.mapView.annotations, animated: true)
     
         //userSettings = loadSettings()!
     }
@@ -129,11 +138,23 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     }
  */
     
+    func fitAll() {
+        var zoomRect            = MKMapRect.null;
+        for annotation in stations {
+            let annotationPoint = MKMapPoint(annotation.coordinate)
+            let pointRect       = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.01, height: 0.01);
+            zoomRect            = zoomRect.union(pointRect);
+        }
+        //setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 100, left: 100, bottom: 100, right: 100), animated: true)
+    }
+    
     func getNREL(coordinate: CLLocationCoordinate2D, amount: Int) {
         
-        let scriptUrl = URL(string: "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=OxpIDL7uE8O60BL52DC7YYp3T1mq4uy01wlLw5bK&latitude=\(coordinate.latitude)&longitude=\(coordinate.longitude)&limit=10")!
+        let urlString = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=OxpIDL7uE8O60BL52DC7YYp3T1mq4uy01wlLw5bK&latitude=\(coordinate.latitude)&longitude=\(coordinate.longitude)&radius=\(userSettings.proximity)&fuel_type=ELEC&limit=\(amount)"
+        
+        guard let url = URL(string: urlString) else { return }
     
-        let configuration = URLSessionConfiguration.ephemeral
+        /*let configuration = URLSessionConfiguration.ephemeral
         let session = URLSession(configuration: configuration, delegate: nil, delegateQueue: OperationQueue.main)
         let task = session.dataTask(with: scriptUrl, completionHandler: { [weak self] (data: Data?, response: URLResponse?, error: Error?) -> Void in
             // Parse the data in the response and use it
@@ -148,26 +169,62 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                 //TODO figure out how to parse JSON object
                 
                 //hardcode in station data for West Lafette
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Armory", is_paid: false, latitude: 40.4277617, longitude: -86.9162607))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Northwestern Parking Garage", is_paid: false, latitude: 40.4296753, longitude: -86.9120266))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - University Street Garage", is_paid: true, latitude: 40.426713, longitude: -86.917213))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Grant Street Parking Garage", is_paid: false, latitude: 40.4244203, longitude: -86.9103211))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Harrison Street Garage", is_paid: true, latitude: 40.421241, longitude: -86.917619))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Armory", street_address: "812 3rd St\nWest Lafayette, IN", is_paid: false, latitude: 40.4277617, longitude: -86.9162607))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Northwestern Parking Garage", street_address: "460 Northwestern Ave\nWest Lafayette, IN", is_paid: false, latitude: 40.4296753, longitude: -86.9120266))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - University Street Garage", street_address: "610 Purdue Mall\nWest Lafayette, IN", is_paid: true, latitude: 40.426713, longitude: -86.917213))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Grant Street Parking Garage", street_address: "120 N Grant St\nWest Lafayette, IN", is_paid: false, latitude: 40.4244203, longitude: -86.9103211))
+                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Harrison Street Garage", street_address: "719 Clinic Dr\nWest Lafayette, IN", is_paid: true, latitude: 40.421241, longitude: -86.917619))
                 
                 self?.addStationAnnotations()
             } catch let error as NSError {
                 print("Failed to load: \(error.localizedDescription)")
             }
         })
-        task.resume()
+        task.resume()*/
+        
+        URLSession.shared.dataTask(with: url) { (data, response, err) in
+            
+            //TODO: check err
+            //TODO: check response status is 200 OK
+            
+            guard let data = data else {return}
+            
+            do {
+                let NRELJson = try JSONDecoder().decode(NRELJsonObj.self, from: data)
+                
+                print(NRELJson)
+                print(urlString)
+                
+                for fuel_station in NRELJson.fuel_stations {
+                    let temp = FuelStationAnnotation(obj: fuel_station)
+                    self.addStationAnnotation(station: temp)
+                }
+                
+            } catch let jsonErr {
+                print("lat: \(coordinate.latitude)\nlon: \(coordinate.longitude)")
+                print("Error serializing json: ", jsonErr)
+            }
+          
+        }.resume()
         
     }
     
     //adds map annotations using array of stations pulled from NREL database
-    func addStationAnnotations() {
-        for i in stations {
-            mapView.addAnnotation(i)
+    func addStationAnnotation(station: FuelStationAnnotation) {
+        
+        if userSettings.availableToggle && station.isChargingAvaiable {
+            
         }
+        if userSettings.freeToggle && !station.isPaid {
+            
+        }
+        if userSettings.paidToggle && station.isPaid {
+            
+        }
+        // TODO add standard and fast charging
+        
+        self.stations.append(station)
+        mapView.addAnnotation(station)
     }
     
     private func registerMapAnnotationViews() {
@@ -181,12 +238,12 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     
     func centerViewOnUserLocation() {
         if let location = locationManager.location?.coordinate {
-            var region = MKCoordinateRegion.init(center: location, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
-                                                 longitudinalMeters: Double(userSettings.proximity*1500))
+            let region = MKCoordinateRegion.init(center: location, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
+                                                 longitudinalMeters: Double(userSettings.proximity*regionInMeters))
             
             mapView.setRegion(region, animated: true)
             
-            getNREL(coordinate: location, amount: 5)
+            getNREL(coordinate: location, amount: 100)
         }
     }
 
@@ -209,7 +266,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
             setupLocationManager()
             checkLocationAuthorization()
             locationManager.startUpdatingLocation()
-            mapView.userTrackingMode = MKUserTrackingMode(rawValue: 2)!
+            //mapView.userTrackingMode = MKUserTrackingMode(rawValue: 2)!
         }
         else {
             // show alert to enable location services
@@ -262,7 +319,7 @@ extension ViewController: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+        //let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
         //self.mapView.setRegion(region, animated: true)
     }
     

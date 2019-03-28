@@ -39,14 +39,14 @@ class InfoPaneViewController: UIViewController {
     }
     
     func populateInfoPane(fuelStation: FuelStationAnnotation){
-        self.stationName.text = fuelStation.station_name
-        self.streetAddress.text = fuelStation.street_address
-        if (fuelStation.is_parking_avaiable){
+        self.stationName.text = fuelStation.stationName
+        self.streetAddress.text = fuelStation.streetAddress
+        if (fuelStation.isParkingAvaiable){
             self.isParkingAvaiable.text = "Yes"
         } else {
             self.isParkingAvaiable.text = "No"
         }
-        if (fuelStation.is_charging_avaiable){
+        if (fuelStation.isChargingAvaiable){
             self.isChargingAvaiable.text = "Yes"
         } else {
             self.isChargingAvaiable.text = "No"

@@ -49,7 +49,7 @@ class SettingsViewController: UIViewController {
  */
         
         proximitySlider.minimumValue = 0.1
-        proximitySlider.maximumValue = 10
+        proximitySlider.maximumValue = 50
         
         // Do any additional setup after loading the view.
     }

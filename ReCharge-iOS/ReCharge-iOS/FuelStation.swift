@@ -9,21 +9,80 @@
 import MapKit
 import Contacts
 
+struct NRELJsonObj: Decodable {
+    
+    // JSON object from the NREL database querry
+    let latitude : Double
+    let longitude : Double
+    let location_country: String?
+    let percision : String?
+    let station_locator_url: String
+    let total_results: Int
+    // station_counts json obj not constructed
+    let offset : Int
+    let fuel_stations: [NRELFuelStation]
+}
+
+struct NRELFuelStation: Decodable {
+    // struct to seralize fuel_stations from the NRELJsonObj
+    let access_code: String?
+    let access_days_time: String?
+    let access_detail_code: String?
+    let cards_accepted: String?
+    let date_last_confirmed: String?
+    let expected_date: String?
+    let fuel_type_code: String?
+    let groups_with_access_code: String?
+    let id: Int
+    let open_date: String?
+    let owner_type_code: String?
+    let status_code: String?
+    let station_name : String?
+    let station_phone : String?
+    let updated_at: String?
+    let geocode_status: String?
+    let latitude : Double
+    let longitude : Double
+    let city : String
+    let intersection_directions : String?
+    let state : String
+    let street_address : String
+    let zip : String
+    let country: String
+}
+
 class FuelStationAnnotation: NSObject, MKAnnotation {
     // instance variables (some commented out for initial testing)
-    let station_name : String
-    //let station_phone : String?
-    //let latitude : Double
-    //let longitude : Double
-    //let city : String
-    //let intersection_directions : String
-    //let state : String
-    let street_address : String
-    //let zip : String
+    let stationName : String?
+    let stationPhone : String?
+    let city : String
+    let intersectionDirections : String?
+    let state : String
+    let streetAddress : String
+    let zip : String
     let coordinate : CLLocationCoordinate2D
-    let is_parking_avaiable : Bool
-    let is_charging_avaiable : Bool
-    let is_paid: Bool
+    let isParkingAvaiable : Bool
+    let isChargingAvaiable : Bool
+    let isPaid: Bool
+    
+    init(obj: NRELFuelStation){
+        
+        self.stationName = obj.station_name
+        self.stationPhone = obj.station_phone
+        self.city = obj.city
+        self.intersectionDirections = obj.intersection_directions
+        self.state = obj.state
+        self.streetAddress = obj.street_address + "\n" + obj.city + ", " + obj.state + "  " + obj.zip
+        self.zip = obj.zip
+        self.coordinate = CLLocationCoordinate2DMake(obj.latitude, obj.longitude)
+        
+        // TODO: get data from Ramsey's database
+        
+        self.isParkingAvaiable = false
+        self.isChargingAvaiable = false
+        //self.isPaid = obj.cards_accepted == nil ? false : true
+        self.isPaid = true
+    }
 
     /*
     init(JSONString: String) {
@@ -49,7 +108,7 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
         self.coordinate = CLLocationCoordinate2D(latitude: self.latitude, longitude: self.longitude)
 
     }
-    */
+ 
 
     init(stationName: String, streetAddress: String, isParkingAvaiable : Bool, isChargingAvaiable : Bool, isPaid: Bool, coordinate: CLLocationCoordinate2D) {
         self.station_name = stationName
@@ -62,23 +121,23 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
         super.init()
     }
     
-    init(station_name: String, is_paid: Bool, latitude: Double, longitude: Double) {
+    init(station_name: String, street_address: String, is_paid: Bool, latitude: Double, longitude: Double) {
         self.station_name = station_name
         self.is_paid = is_paid
-        self.street_address = "Not Avaiable"
+        self.street_address = street_address
         self.is_parking_avaiable = false
         self.is_charging_avaiable = false
         self.coordinate = CLLocationCoordinate2DMake(latitude, longitude)
         
         super.init()
-    }
+    }*/
     
     var title: String? {
-        return station_name
+        return stationName
     }
     
     var subtitle: String? {
-        return street_address
+        return streetAddress
     }
     
     // Annotation right callout accessory opens this mapItem in Maps app
