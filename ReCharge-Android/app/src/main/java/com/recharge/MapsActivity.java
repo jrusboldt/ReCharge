@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -143,9 +144,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Set the bottom sheet listeners
         mMap.setOnMarkerClickListener(mOnMarkerClickListener);
         mMap.setOnMapClickListener(mOnMapClickListener);
-
-        // Set the custom info windows
-        mMap.setInfoWindowAdapter(new CustomInfoWindowGoogleMap(this));
 
         // Request and display all the stations within the radius determined by the user
         requestAndDisplayStations(lastKnownLocation, true);
@@ -417,11 +415,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
                 // Check if paid or free
-                boolean paid = previousBooleanPreferences.get("switch_Paid");
-                boolean free = previousBooleanPreferences.get("switch_Free");
-                String cardsAccepted = station.getString("cards_accepted");
+                boolean paidPreference = previousBooleanPreferences.get("switch_Paid");
+                boolean freePreference = previousBooleanPreferences.get("switch_Free");
+                boolean isPaid = !station.getString("cards_accepted").equals("null");
 
-                if ((!paid && !cardsAccepted.equals("null")) || (!free && cardsAccepted.equals("null"))) {
+                if ((!paidPreference && isPaid) || (!freePreference && !isPaid)) {
                     continue;
                 }
 
@@ -429,11 +427,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 boolean level1 = previousBooleanPreferences.get("switch_Level1Charging");
                 boolean level2 = previousBooleanPreferences.get("switch_Level2Charging");
                 boolean DC = previousBooleanPreferences.get("switch_DCCharging");
-                String hasLevel1 = station.getString("ev_level1_evse_num");
-                String hasLevel2 = station.getString("ev_level2_evse_num");
-                String hasDC = station.getString("ev_dc_fast_num");
+                boolean hasLevel1 = !station.getString("ev_level1_evse_num").equals("null");
+                boolean hasLevel2 = !station.getString("ev_level2_evse_num").equals("null");
+                boolean hasDC = !station.getString("ev_dc_fast_num").equals("null");
 
-                if ((!level1 && !hasLevel1.equals("null")) || (!level2 && !hasLevel2.equals("null")) || (!DC && !hasDC.equals("null"))) {
+                if ((!level1 && hasLevel1) || (!level2 && hasLevel2) || (!DC && hasDC)) {
                     continue;
                 }
 
@@ -442,26 +440,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // The status will be "P" if the station is Planned to be opened
                 // The status will be "T" if the station is Temporarily Unavailable
                 // Get the "expected_date" value to see the estimated date of opening / reopening
-                String status = station.getString("status_code");
-                // TODO: Display the station status to the user
+                String workingStatus;
+                if (station.getString("status_code").equals("E")) {
+                    workingStatus = "Operating Normally";
+                } else if (station.getString("status_code").equals("P")) {
+                    workingStatus = "Not Yet Open";
+                } else {
+                    workingStatus = "Temporarily Unavailable";
+                }
 
                 String stationName = station.getString("station_name");
                 String stationAddress = station.getString("street_address") + ", " +
                         station.getString("city") + ", " + station.getString("state");
                 LatLng stationLatLng = new LatLng(station.getDouble("latitude"), station.getDouble("longitude"));
 
-                InfoWindowData info = new InfoWindowData();
                 float distance[] = new float[2];
                 Location.distanceBetween(lastKnownLocation.latitude,
                         lastKnownLocation.longitude, stationLatLng.latitude, stationLatLng.longitude,
                         distance);
-                info.setDistance(distance[0]);
 
+                // Set up the station marker data
+                StationMarkerData info = new StationMarkerData();
+
+                info.setAddress(stationAddress);
+                info.setDistance(distance[0] * 0.000621371);
+                info.setChargingAvailability(StationMarkerData.STATUS_UNKNOWN);
+                info.setParkingAvailability(StationMarkerData.STATUS_UNKNOWN);
                 info.setPublicStatus(station.getString("groups_with_access_code"));
-                info.setChargingAvailability(false);
-                info.setParkingAvailability(false);
+                info.setIsPaid(isPaid);
+                info.setChargingLevels(hasLevel1, hasLevel2, hasDC);
+                info.setWorkingStatus(workingStatus);
                 info.setImage("@drawable/ic_ev_station_black_24dp");
 
+                // Create the marker and add it to the map
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.position((stationLatLng)).title(stationName).snippet(stationAddress);
                 Marker m = mMap.addMarker(markerOptions);
@@ -488,8 +499,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.animateCamera(cu);
 
             // Update the info in the bottom sheet to be relevant to the marker that was selected
-            // TODO: Update info in bottom sheet to match marker so we can remove the old info windows
-            marker.showInfoWindow();
+            // Get station marker information
+            StationMarkerData stationData = (StationMarkerData) marker.getTag();
+
+            // Set title of bottom sheet
+            TextView text = findViewById(R.id.bottom_sheet_name);
+            text.setText(marker.getTitle());
+
+            // Set address
+            text = findViewById(R.id.bottom_sheet_address);
+            text.setText("Address: " + stationData.getAddress());
+
+            // Set distance
+            text = findViewById(R.id.bottom_sheet_distance);
+            text.setText("Distance to Station: " + stationData.getDistance() + " Miles");
+
+            // Set charging availability
+            text = findViewById(R.id.bottom_sheet_charging_availability);
+            if (stationData.getChargingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
+                text.setText("Charging Availability: Yes");
+            } else if (stationData.getChargingAvailability() == StationMarkerData.STATUS_UNAVAILABLE) {
+                text.setText("Charging Availability: No");
+            } else {
+                text.setText("Charging Availability: Unknown");
+            }
+
+            // Set parking availability
+            text = findViewById(R.id.bottom_sheet_parking_availability);
+            if (stationData.getParkingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
+                text.setText("Parking Availability: Yes");
+            } else if (stationData.getParkingAvailability() == StationMarkerData.STATUS_UNAVAILABLE) {
+                text.setText("Parking Availability: No");
+            } else {
+                text.setText("Parking Availability: Unknown");
+            }
+
+            // Set public access
+            text = findViewById(R.id.bottom_sheet_public_status);
+            text.setText("Public Access: " + stationData.getPublicStatus());
+
+            // Set cost status
+            text = findViewById(R.id.bottom_sheet_cost_status);
+            if (stationData.getIsPaid()) {
+                text.setText("Cost Status: Paid");
+            } else {
+                text.setText("Cost Status: Free");
+            }
+
+            // Set charging levels
+            text = findViewById(R.id.bottom_sheet_charging_levels);
+            text.setText("Charging Levels: " + stationData.getChargingLevels());
+
+            // Set working status
+            text = findViewById(R.id.bottom_sheet_working_status);
+            text.setText("Working Status: " + stationData.getWorkingStatus());
 
             // Make the bottom sheet visible, but leave it collapsed. Let the user decide to open it
             // TODO: Make it so the map size shrinks/grows with the bottom sheet opening/closing and keep the marker centered

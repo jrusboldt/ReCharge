@@ -30,6 +30,7 @@
                     android:src="@drawable/ic_dns_red_400_24dp"/>
 
             <TextView
+                    android:id="@+id/bottom_sheet_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Tap to see quick actions"
@@ -55,11 +56,31 @@
                         android:layout_marginStart="10dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="GET DIRECTIONS"
+                        android:text="STATION INFORMATION"
                         android:textStyle="bold"/>
 
+                <TextView
+                        android:id="@+id/bottom_sheet_address"
+                        android:textColor="@android:color/black"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Address: "
+                        android:textStyle="normal"/>
+
+                <TextView
+                        android:id="@+id/bottom_sheet_distance"
+                        android:textColor="@android:color/black"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Distance to Station: "
+                        android:textStyle="normal"/>
+
                 <LinearLayout
-                        android:padding="15dp"
+                        android:padding="0dp"
                         android:orientation="horizontal"
                         android:baselineAligned="false"
                         android:layout_width="match_parent"
@@ -71,138 +92,70 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
 
-                        <RelativeLayout
-                                android:layout_margin="10dp"
-                                android:gravity="center"
-                                android:layout_gravity="center"
-                                android:padding="10dp"
-                                android:background="@drawable/circleshape"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp">
-
-                            <ImageView
-                                    android:src="@drawable/ic_directions_car_white_24dp"
-                                    android:layout_width="35dp"
-                                    android:layout_height="35dp"/>
-
-                        </RelativeLayout>
-
                         <TextView
-                                android:layout_gravity="center"
-                                android:gravity="center"
+                                android:id="@+id/bottom_sheet_charging_availability"
+                                android:textColor="@android:color/black"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginStart="10dp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/colorGrey"
-                                android:text="Drive"/>
-
-                    </LinearLayout>
-
-
-                    <LinearLayout
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-                        <RelativeLayout
-                                android:layout_margin="10dp"
-                                android:gravity="center"
-                                android:layout_gravity="center"
-                                android:padding="10dp"
-                                android:background="@drawable/circleshape"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp">
-
-                            <ImageView
-                                    android:src="@drawable/ic_train_white_24dp"
-                                    android:layout_width="35dp"
-                                    android:layout_height="35dp"/>
-
-                        </RelativeLayout>
-
+                                android:text="Charging Availability: "
+                                android:textStyle="normal"/>
 
                         <TextView
-                                android:layout_gravity="center"
-                                android:gravity="center"
+                                android:id="@+id/bottom_sheet_parking_availability"
+                                android:textColor="@android:color/black"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginStart="10dp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/colorGrey"
-                                android:text="Train or Bus"/>
-
-                    </LinearLayout>
-
-
-                    <LinearLayout
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-                        <RelativeLayout
-                                android:layout_margin="10dp"
-                                android:gravity="center"
-                                android:layout_gravity="center"
-                                android:padding="10dp"
-                                android:background="@drawable/circleshape"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp">
-
-                            <ImageView
-                                    android:src="@drawable/ic_directions_walk_white_24dp"
-                                    android:layout_width="35dp"
-                                    android:layout_height="35dp"/>
-
-                        </RelativeLayout>
-
+                                android:text="Parking Availability: "
+                                android:textStyle="normal"/>
 
                         <TextView
-                                android:layout_gravity="center"
-                                android:gravity="center"
+                                android:id="@+id/bottom_sheet_public_status"
+                                android:textColor="@android:color/black"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginStart="10dp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/colorGrey"
-                                android:text="Walk"/>
-
-
-                    </LinearLayout>
-
-
-                    <LinearLayout
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-
-                        <RelativeLayout
-                                android:layout_margin="10dp"
-                                android:gravity="center"
-                                android:layout_gravity="center"
-                                android:padding="10dp"
-                                android:background="@drawable/circleshape"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp">
-
-                            <ImageView
-                                    android:src="@drawable/ic_nature_people_white_24dp"
-                                    android:layout_width="35dp"
-                                    android:layout_height="35dp"/>
-
-                        </RelativeLayout>
+                                android:text="Public Access: "
+                                android:textStyle="normal"/>
 
                         <TextView
-                                android:layout_gravity="center"
-                                android:gravity="center"
+                                android:id="@+id/bottom_sheet_cost_status"
+                                android:textColor="@android:color/black"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginStart="10dp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/colorGrey"
-                                android:text="Cab"/>
+                                android:text="Cost Status: "
+                                android:textStyle="normal"/>
+
+                        <TextView
+                                android:id="@+id/bottom_sheet_charging_levels"
+                                android:textColor="@android:color/black"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Charging Levels: "
+                                android:textStyle="normal"/>
+
+                        <TextView
+                                android:id="@+id/bottom_sheet_working_status"
+                                android:textColor="@android:color/black"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginBottom="10dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Working Status: "
+                                android:textStyle="normal"/>
 
                     </LinearLayout>
-
 
                 </LinearLayout>
-
 
             </LinearLayout>
 
@@ -227,7 +180,7 @@
                         android:layout_marginStart="10dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="QUICK ACTIONS"
+                        android:text="OPEN IN GOOGLE MAPS"
                         android:textStyle="bold"/>
 
                 <LinearLayout
@@ -247,116 +200,13 @@
                                 android:layout_margin="10dp"
                                 android:gravity="center"
                                 android:layout_gravity="center"
-                                android:background="@drawable/circleshape"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp">
-
-                            <ImageView
-                                    android:src="@drawable/setlightimg"
-                                    android:scaleType="fitXY"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"/>
-
-                        </RelativeLayout>
-
-                        <TextView
-                                android:layout_gravity="center"
-                                android:gravity="center"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/colorGrey"
-                                android:text="Drive"/>
-
-                    </LinearLayout>
-
-
-                    <LinearLayout
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-                        <RelativeLayout
-                                android:layout_margin="10dp"
-                                android:gravity="center"
-                                android:layout_gravity="center"
-                                android:background="@drawable/circleshape"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp">
-
-                            <ImageView
-                                    android:src="@drawable/traficimg"
-                                    android:scaleType="fitXY"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"/>
-
-                        </RelativeLayout>
-
-
-                        <TextView
-                                android:layout_gravity="center"
-                                android:gravity="center"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/colorGrey"
-                                android:text="Train or Bus"/>
-
-                    </LinearLayout>
-
-
-                    <LinearLayout
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-                        <RelativeLayout
-                                android:layout_margin="10dp"
-                                android:gravity="center"
-                                android:layout_gravity="center"
-                                android:background="@drawable/circleshape"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp">
-
-                            <ImageView
-                                    android:src="@drawable/walkimg"
-                                    android:scaleType="fitXY"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"/>
-
-                        </RelativeLayout>
-
-
-                        <TextView
-                                android:layout_gravity="center"
-                                android:gravity="center"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/colorGrey"
-                                android:text="Walk"/>
-
-
-                    </LinearLayout>
-
-
-                    <LinearLayout
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-
-                        <RelativeLayout
-                                android:layout_margin="10dp"
-                                android:gravity="center"
-                                android:layout_gravity="center"
                                 android:padding="10dp"
                                 android:background="@drawable/circleshape"
                                 android:layout_width="60dp"
                                 android:layout_height="60dp">
 
                             <ImageView
-                                    android:src="@drawable/ic_file_download_black_24dp"
+                                    android:src="@drawable/ic_place_white_24dp"
                                     android:layout_width="35dp"
                                     android:layout_height="35dp"/>
 
@@ -368,20 +218,48 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/colorGrey"
-                                android:text="Cab"/>
+                                android:text="Locate"/>
 
                     </LinearLayout>
 
+                    <LinearLayout
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                        <RelativeLayout
+                                android:layout_margin="10dp"
+                                android:gravity="center"
+                                android:layout_gravity="center"
+                                android:padding="10dp"
+                                android:background="@drawable/circleshape"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp">
+
+                            <ImageView
+                                    android:src="@drawable/ic_directions_white_24dp"
+                                    android:layout_width="35dp"
+                                    android:layout_height="35dp"/>
+
+                        </RelativeLayout>
+
+                        <TextView
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorGrey"
+                                android:text="Directions"/>
+
+                    </LinearLayout>
 
                 </LinearLayout>
-
 
             </LinearLayout>
 
         </android.support.v7.widget.CardView>
 
-
     </LinearLayout>
-
 
 </android.support.v4.widget.NestedScrollView>
