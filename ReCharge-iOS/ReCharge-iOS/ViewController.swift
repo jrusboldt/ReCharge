@@ -212,19 +212,29 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     //adds map annotations using array of stations pulled from NREL database
     func addStationAnnotation(station: FuelStationAnnotation) {
         
-        if userSettings.availableToggle && station.isChargingAvaiable {
-            
+        var matchedCriteria = true
+        
+        // check if available switch is true and charging station is available
+        if userSettings.availableToggle && !station.isChargingAvaiable {
+            // check if busy switch is true
+            if !userSettings.busyToggle {
+                matchedCriteria = false
+            }
         }
+        
+        // check if free switch is true and charging station is free
         if userSettings.freeToggle && !station.isPaid {
-            
-        }
-        if userSettings.paidToggle && station.isPaid {
-            
+            // check if paid switch is true
+            if !userSettings.paidToggle {
+                matchedCriteria = false
+            }
         }
         // TODO add standard and fast charging
         
-        self.stations.append(station)
-        mapView.addAnnotation(station)
+        if matchedCriteria {
+            self.stations.append(station)
+            mapView.addAnnotation(station)
+        }
     }
     
     private func registerMapAnnotationViews() {

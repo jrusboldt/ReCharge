@@ -85,7 +85,7 @@ class SettingsViewController: UIViewController {
     }
     
     
-    private func saveProximity() {
+/*    private func saveProximity() {
         let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(Double(proximitySlider.value), toFile: Settings.ArchiveURL.path)
     
         if isSuccessfulSave {
@@ -94,7 +94,7 @@ class SettingsViewController: UIViewController {
             print("Failed to save settings...")
         }
     }
-    
+  */
     
     @IBAction func availableSwitchTouched(_ sender: Any) {
         //get current switch value
