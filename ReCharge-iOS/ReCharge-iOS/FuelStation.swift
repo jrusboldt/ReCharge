@@ -69,6 +69,8 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
     let isPaid : Bool
     let isStandardCharger : Bool
     let isDCFastCharger : Bool
+    // station working status
+    let isOpen : Bool
     
     init(obj: NRELFuelStation){
         
@@ -88,6 +90,14 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
         //self.isPaid = obj.cards_accepted == nil ? false : true
         self.isPaid = true
         
+        // check status code
+        if obj.status_code == "E" {
+            self.isOpen = true
+        }
+        else {
+            self.isOpen = false
+        }
+        
         
         // check if lvl 1 or lvl 2 chargers are at the station
         if (obj.ev_level1_evse_num ?? 0) > 0 || (obj.ev_level2_evse_num ?? 0) > 0 {
@@ -104,6 +114,7 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
         else {
             self.isDCFastCharger = false
         }
+        
     }
 
     /*
