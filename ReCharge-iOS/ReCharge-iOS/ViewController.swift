@@ -61,10 +61,6 @@ extension ViewController: MKMapViewDelegate {
                 view.glyphTintColor = UIColor.black
             }
             
-            if (!annotation.isOpen) {
-                view.markerTintColor = UIColor.gray
-                view.glyphText = "!"
-            }
             
             if (annotation.isChargingAvaiable) {
                 view.markerTintColor = UIColor.green
@@ -74,7 +70,10 @@ extension ViewController: MKMapViewDelegate {
                 view.glyphText = "X"
             }
             
-            
+            if (!annotation.isOpen) {
+                view.markerTintColor = UIColor.gray
+                view.glyphText = "!"
+            }
             
         }
         return view
@@ -109,6 +108,7 @@ extension ViewController: MKMapViewDelegate {
 }
 
 var userSettings : Settings = Settings(proximity: 3)
+var testCount : Int = 0
 
 class ViewController: UIViewController, InfoPaneDelegateProtocol {
     
@@ -225,6 +225,43 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                 
                 for fuel_station in NRELJson.fuel_stations {
                     let temp = FuelStationAnnotation(obj: fuel_station)
+                    
+                    //test data
+                    if testCount == 0 {
+                        temp.isChargingAvaiable = true
+                        temp.isPaid = false
+                        temp.isOpen = true
+                    }
+                    if testCount == 1 {
+                        temp.isChargingAvaiable = true
+                        temp.isPaid = true
+                        temp.isOpen = true
+                    }
+                    if testCount == 2 {
+                        temp.isOpen = false
+                    }
+                    if testCount == 3 {
+                        temp.isOpen = true
+                        temp.isPaid = true
+                        temp.isDCFastCharger = true
+                    }
+                    if testCount == 4 {
+                        temp.isOpen = true
+                        temp.isChargingAvaiable = true
+                        temp.isDCFastCharger = true
+                    }
+                    if testCount == 5 {
+                        temp.isOpen = true
+                        temp.isChargingAvaiable = true
+                        temp.isDCFastCharger = true
+                    }
+                    if testCount == 6 {
+                        temp.isOpen = false
+                    }
+                    
+                    testCount += 1
+
+                    
                     self.addStationAnnotation(station: temp)
                 }
                 
@@ -268,6 +305,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
         }
         
         if matchedCriteria {
+            
             self.stations.append(station)
             mapView.addAnnotation(station)
         }

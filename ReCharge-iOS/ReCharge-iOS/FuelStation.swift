@@ -56,21 +56,21 @@ struct NRELFuelStation: Decodable {
 
 class FuelStationAnnotation: NSObject, MKAnnotation {
     // instance variables (some commented out for initial testing)
-    let stationName : String?
-    let stationPhone : String?
-    let city : String
-    let intersectionDirections : String?
-    let state : String
-    let streetAddress : String
-    let zip : String
-    let coordinate : CLLocationCoordinate2D
-    let isParkingAvaiable : Bool
-    let isChargingAvaiable : Bool
-    let isPaid : Bool
-    let isStandardCharger : Bool
-    let isDCFastCharger : Bool
+    var stationName : String?
+    var stationPhone : String?
+    var city : String
+    var intersectionDirections : String?
+    var state : String
+    var streetAddress : String
+    var zip : String
+    var coordinate : CLLocationCoordinate2D
+    var isParkingAvaiable : Bool
+    var isChargingAvaiable : Bool
+    var isPaid : Bool
+    var isStandardCharger : Bool
+    var isDCFastCharger : Bool
     // station working status
-    let isOpen : Bool
+    var isOpen : Bool
     
     init(obj: NRELFuelStation){
         
