@@ -48,6 +48,33 @@ extension ViewController: MKMapViewDelegate {
             if (annotation.isPaid){
                 view.glyphText = "$"
             }
+            else {
+                view.glyphText = "F"
+            }
+            
+            if (annotation.isStandardCharger) {
+                view.glyphTintColor = UIColor.white
+            }
+            
+            if (annotation.isDCFastCharger) {
+                view.glyphTintColor = UIColor.black
+            }
+            
+            if (!annotation.isOpen) {
+                view.markerTintColor = UIColor.gray
+                view.glyphText = "!"
+            }
+            
+            if (annotation.isChargingAvaiable) {
+                view.markerTintColor = UIColor.green
+            }
+            else  {
+                view.markerTintColor = UIColor.red
+                view.glyphText = "X"
+            }
+            
+            
+            
         }
         return view
     }
