@@ -45,6 +45,7 @@ extension ViewController: MKMapViewDelegate {
             view.displayPriority = .required
             //view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
             
+            // change pin color/text based on station attributes
             if (annotation.isPaid){
                 view.glyphText = "$"
             }
@@ -257,10 +258,11 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
             }
         }
         
+        // check if standard switch is try and station is standard charging
         if userSettings.standardToggle && !station.isStandardCharger {
             matchedCriteria = false
         }
-        
+        // check if fast switch is try and station is fast charging
         if userSettings.fastToggle && !station.isDCFastCharger {
             matchedCriteria = false
         }
