@@ -229,7 +229,14 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                 matchedCriteria = false
             }
         }
-        // TODO add standard and fast charging
+        
+        if userSettings.standardToggle && !station.isStandardCharger {
+            matchedCriteria = false
+        }
+        
+        if userSettings.fastToggle && !station.isDCFastCharger {
+            matchedCriteria = false
+        }
         
         if matchedCriteria {
             self.stations.append(station)

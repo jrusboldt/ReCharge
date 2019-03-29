@@ -25,7 +25,7 @@ class Settings : NSObject, NSCoding{
         self.freeToggle = true
         self.paidToggle = true
         self.standardToggle = true
-        self.fastToggle = true
+        self.fastToggle = false
     }
     
     struct PropertyKey {

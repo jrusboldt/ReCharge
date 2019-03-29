@@ -48,7 +48,10 @@ struct NRELFuelStation: Decodable {
     let state : String
     let street_address : String
     let zip : String
-    let country: String
+    let country : String
+    let ev_level1_evse_num : Int?
+    let ev_level2_evse_num : Int?
+    let ev_dc_fast_num : Int?
 }
 
 class FuelStationAnnotation: NSObject, MKAnnotation {
@@ -63,7 +66,9 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
     let coordinate : CLLocationCoordinate2D
     let isParkingAvaiable : Bool
     let isChargingAvaiable : Bool
-    let isPaid: Bool
+    let isPaid : Bool
+    let isStandardCharger : Bool
+    let isDCFastCharger : Bool
     
     init(obj: NRELFuelStation){
         
@@ -82,6 +87,23 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
         self.isChargingAvaiable = false
         //self.isPaid = obj.cards_accepted == nil ? false : true
         self.isPaid = true
+        
+        
+        // check if lvl 1 or lvl 2 chargers are at the station
+        if (obj.ev_level1_evse_num ?? 0) > 0 || (obj.ev_level2_evse_num ?? 0) > 0 {
+            self.isStandardCharger = true
+        }
+        else {
+            self.isStandardCharger = false
+        }
+        
+        // check if DC chargers are at the station
+        if (obj.ev_dc_fast_num ?? 0) > 0 {
+            self.isDCFastCharger = true
+        }
+        else {
+            self.isDCFastCharger = false
+        }
     }
 
     /*
