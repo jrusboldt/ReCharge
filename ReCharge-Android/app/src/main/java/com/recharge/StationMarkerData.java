@@ -16,10 +16,20 @@ public class StationMarkerData {
     private int chargingAvailability;
     private int parkingAvailability;
 
+    private String ID;
     private String image;
     private String publicStatus;
     private String workingStatus;
     private String address;
+    private String expectedDate;
+
+    public String getID() {
+        return ID;
+    }
+
+    public void setID(String ID) {
+        this.ID = ID;
+    }
 
     public String getImage() {
         return image;
@@ -124,5 +134,13 @@ public class StationMarkerData {
         }
 
         return sb.toString();
+    }
+
+    public void setExpectedDate(String expectedDate) {
+        this.expectedDate = expectedDate;
+    }
+
+    public String getExpectedDate() {
+        return this.expectedDate;
     }
 }

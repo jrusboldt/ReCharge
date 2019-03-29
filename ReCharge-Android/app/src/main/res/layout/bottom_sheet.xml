@@ -143,6 +143,16 @@
                                 android:textStyle="normal"/>
 
                         <TextView
+                                android:id="@+id/bottom_sheet_station_id"
+                                android:textColor="@android:color/black"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Station ID: "
+                                android:textStyle="normal"/>
+
+                        <TextView
                                 android:id="@+id/bottom_sheet_working_status"
                                 android:textColor="@android:color/black"
                                 android:layout_marginTop="10dp"
@@ -152,6 +162,17 @@
                                 android:layout_height="wrap_content"
                                 android:text="Working Status: "
                                 android:textStyle="normal"/>
+
+                        <TextView
+                                android:id="@+id/bottom_sheet_expected_date"
+                                android:textColor="@android:color/black"
+                                android:layout_marginBottom="10dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Expected Working Date: "
+                                android:textStyle="normal"
+                                android:visibility="gone"/>
 
                     </LinearLayout>
 
@@ -196,6 +217,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
 
+                        <!--
                         <RelativeLayout
                                 android:layout_margin="10dp"
                                 android:gravity="center"
@@ -219,7 +241,24 @@
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/colorGrey"
                                 android:text="Locate"/>
+                        -->
 
+                        <android.support.design.widget.FloatingActionButton
+                                android:id="@+id/bottom_sheet_button_location"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:scaleType="center"
+                                android:src="@drawable/ic_place_white_24dp"
+                                android:layout_margin="10dp"/>
+
+                        <TextView
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorGrey"
+                                android:text="Locate"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -228,21 +267,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
 
-                        <RelativeLayout
-                                android:layout_margin="10dp"
-                                android:gravity="center"
+                        <android.support.design.widget.FloatingActionButton
+                                android:id="@+id/bottom_sheet_button_directions"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:padding="10dp"
-                                android:background="@drawable/circleshape"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp">
-
-                            <ImageView
-                                    android:src="@drawable/ic_directions_white_24dp"
-                                    android:layout_width="35dp"
-                                    android:layout_height="35dp"/>
-
-                        </RelativeLayout>
+                                android:scaleType="center"
+                                android:src="@drawable/ic_directions_white_24dp"
+                                android:layout_margin="10dp"/>
 
                         <TextView
                                 android:layout_gravity="center"

@@ -17,17 +17,17 @@
             android:defaultValue="true"/>
 
     <SwitchPreferenceCompat
-            android:key="switch_Unavailable"
-            android:icon="@drawable/ic_close_black_24dp"
-            android:title="Unavailable Stations"
-            android:summary="Display unavailable charging stations"
-            android:defaultValue="true"/>
-
-    <SwitchPreferenceCompat
             android:key="switch_Unknown"
             android:icon="@drawable/ic_priority_high_black_24dp"
             android:title="Unknown Availability Stations"
             android:summary="Display unknown availability charging stations"
+            android:defaultValue="true"/>
+
+    <SwitchPreferenceCompat
+            android:key="switch_Unavailable"
+            android:icon="@drawable/ic_close_black_24dp"
+            android:title="Unavailable Stations"
+            android:summary="Display unavailable charging stations"
             android:defaultValue="true"/>
 
     <SwitchPreferenceCompat

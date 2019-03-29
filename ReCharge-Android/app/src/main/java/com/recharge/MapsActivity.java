@@ -7,6 +7,8 @@ import android.location.Location;
 import android.preference.PreferenceManager;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.content.Intent;
 import android.net.Uri;
@@ -33,6 +35,8 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -70,6 +74,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private BottomSheetBehavior bottomSheetBehavior;
     private JSONObject stationAvailabilityJSON;
     private JSONObject stationListJSON;
+    private HashMap<String, String> stationAvailabilityMap;
 
     // Preference variables
     private SharedPreferences sp;
@@ -103,6 +108,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         previousBooleanPreferences = new HashMap<>();
         previousIntegerPreferences = new HashMap<>();
+        stationAvailabilityMap = new HashMap<>();
 
         // Set up the bottom sheet
         View bottomSheet = findViewById(R.id.bottom_sheet);
@@ -139,7 +145,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Get and move to the user's location if we can
         // Don't ask for permission here. Wait until they hit the My Location Button
-        getAndMoveToUserLocation(false, true);
+        getAndMoveToUserLocation(false, true, false);
 
         // Set the bottom sheet listeners
         mMap.setOnMarkerClickListener(mOnMarkerClickListener);
@@ -171,12 +177,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 case R.id.navigation_station_search:
                     getSupportFragmentManager().popBackStack("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapFragment).commit();
-                    getAndMoveToUserLocation(true, false);
-                    requestAndDisplayStations(lastKnownLocation, false);
+                    getAndMoveToUserLocation(true, false, true);
                     return true;
                 case R.id.navigation_my_location:
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapFragment).commit();
-                    getAndMoveToUserLocation(true, true);
+                    getAndMoveToUserLocation(true, true, false);
                     return true;
                 case R.id.navigation_preferences:
                     Fragment settingsFragment = new SettingsFragment();
@@ -194,7 +199,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * determines the user's current location and then updates the camera to move to that location.
      * ----------------------------------------------------------------------------------------------------------------
      **/
-    private void getAndMoveToUserLocation(boolean tryForPermission, boolean move) {
+    private void getAndMoveToUserLocation(boolean tryForPermission, boolean move, boolean refreshStations) {
         // Check for location permissions
         // If we have it, find the user. If not, do not do anything unless the "My Location" button is pressed
         // If we don't have it, then request for the permission
@@ -221,14 +226,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             lastKnownLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
+                            if (move) {
+                                CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(lastKnownLocation, DEFAULT_ZOOM);
+                                mMap.animateCamera(cu);
+                            }
+
+                            if (refreshStations) {
+                                requestAndDisplayStations(lastKnownLocation, false);
+                            }
+                        } else {
+                            // Location could not be determined
+                            Snackbar.make(findViewById(R.id.bottom_sheet_wrapper),
+                                    "Location could not be determined. Try again.",
+                                    Snackbar.LENGTH_LONG).show();
                         }
                     }
                 });
-
-        if (move) {
-            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(lastKnownLocation, DEFAULT_ZOOM);
-            mMap.animateCamera(cu);
-        }
     }
 
     /**
@@ -250,14 +264,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Permission was granted
                     mMap.setMyLocationEnabled(true);
                     mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                    getAndMoveToUserLocation(false, true);
+                    getAndMoveToUserLocation(false, true, false);
 
                 } else {
-                    // Permission was denied
-                    // We need to figure out what we should do in this case
-
+                    // Permission was denied, so display a message to the user
+                    Snackbar.make(findViewById(R.id.bottom_sheet_wrapper), "Location permissions denied. Try again.",
+                            Snackbar.LENGTH_LONG).show();
                 }
-                return;
+                break;
             }
             // If we need to request for other permissions, we can check the responses here too
         }
@@ -338,7 +352,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String API_Key = getApplicationContext().getString(R.string.nrel_key);
         String URL = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=" + API_Key +
                 "&latitude=" + latlng.latitude + "&longitude=" + latlng.longitude + "&radius=" +
-                previousIntegerPreferences.get("seekBar_Radius") + "&fuel_type=ELEC" + "&limit=100";
+                previousIntegerPreferences.get("seekBar_Radius") + "&fuel_type=ELEC" + "&limit=200";
 
         // Send the request to the NREL database for the station list
         sendAPIRequest(REQUEST_API_NREL, Request.Method.GET, URL);
@@ -372,6 +386,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             // If this is a response from our server, save the response and then call displayStations
                         } else if (site == REQUEST_API_SERVER) {
                             stationAvailabilityJSON = response;
+
+                            try {
+                                JSONArray jsonArray = stationAvailabilityJSON.getJSONArray("response");
+
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject stationAvailability = jsonArray.getJSONObject(i);
+                                    stationAvailabilityMap.put(stationAvailability.getString("ID"),
+                                            stationAvailability.getString("AVAILABLE"));
+                                }
+
+                            } catch (Exception e) {
+
+                            }
+
                             displayStations();
                         }
                     }
@@ -410,9 +438,57 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 JSONObject station = jsonArray.getJSONObject(i);
 
                 // Check if the station matches the user preferences
-                // Check if available, unavailable, or unknown
-                // TODO: Use station availability response from our server currently saved in "stationAvailabilityJSON"
+                // Check if the station is available or not
+                boolean availablePreference = previousBooleanPreferences.get("switch_Available");
+                boolean unknownPreference = previousBooleanPreferences.get("switch_Unknown");
+                boolean unavailablePreference = previousBooleanPreferences.get("switch_Unavailable");
 
+                // Get the working status of the charging station
+                String workingStatus = station.getString("status_code");
+                String expectedDate = station.getString("expected_date");
+
+                // Rewrite the expected date as "None" if there was not one given
+                if (expectedDate.equals("null")) {
+                    expectedDate = "None";
+                }
+
+                // Check if available, unavailable, or unknown
+                // Set the default to be unknown
+                int chargingAvailability = StationMarkerData.STATUS_UNKNOWN;
+                int parkingAvailability = StationMarkerData.STATUS_UNKNOWN;
+
+                // If the working status is not "E", then the charging station is unavailable
+                if (!workingStatus.equals("E")) {
+                    chargingAvailability = StationMarkerData.STATUS_UNAVAILABLE;
+                }
+
+                String stationID = station.getString("id");
+                String mapLookup;
+
+                try {
+                    mapLookup = stationAvailabilityMap.get(stationID);
+                } catch (Exception e) {
+                    mapLookup = null;
+                }
+
+                if (mapLookup != null) {
+                    if (mapLookup.equals("Y")) {
+                        chargingAvailability = StationMarkerData.STATUS_AVAILABLE;
+                    } else {
+                        chargingAvailability = StationMarkerData.STATUS_UNAVAILABLE;
+
+                        if (stationID.equals("46844")) {
+                            workingStatus = "T";
+                        }
+                    }
+                }
+
+                // Remove the station if it does not match the user settings
+                if ((!availablePreference && chargingAvailability == StationMarkerData.STATUS_AVAILABLE) ||
+                        (!unknownPreference && chargingAvailability == StationMarkerData.STATUS_UNKNOWN) ||
+                        (!unavailablePreference && chargingAvailability == StationMarkerData.STATUS_UNAVAILABLE)) {
+                    continue;
+                }
 
                 // Check if paid or free
                 boolean paidPreference = previousBooleanPreferences.get("switch_Paid");
@@ -431,22 +507,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 boolean hasLevel2 = !station.getString("ev_level2_evse_num").equals("null");
                 boolean hasDC = !station.getString("ev_dc_fast_num").equals("null");
 
-                if ((!level1 && hasLevel1) || (!level2 && hasLevel2) || (!DC && hasDC)) {
+                if (!((level1 && hasLevel1) || (level2 && hasLevel2) || (DC && hasDC))) {
                     continue;
-                }
-
-                // Get the working status of the charging station
-                // The status will be "E" if the station is Open
-                // The status will be "P" if the station is Planned to be opened
-                // The status will be "T" if the station is Temporarily Unavailable
-                // Get the "expected_date" value to see the estimated date of opening / reopening
-                String workingStatus;
-                if (station.getString("status_code").equals("E")) {
-                    workingStatus = "Operating Normally";
-                } else if (station.getString("status_code").equals("P")) {
-                    workingStatus = "Not Yet Open";
-                } else {
-                    workingStatus = "Temporarily Unavailable";
                 }
 
                 String stationName = station.getString("station_name");
@@ -462,20 +524,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // Set up the station marker data
                 StationMarkerData info = new StationMarkerData();
 
+                info.setID(stationID);
                 info.setAddress(stationAddress);
                 info.setDistance(distance[0] * 0.000621371);
-                info.setChargingAvailability(StationMarkerData.STATUS_UNKNOWN);
-                info.setParkingAvailability(StationMarkerData.STATUS_UNKNOWN);
+                info.setChargingAvailability(chargingAvailability);
+                info.setParkingAvailability(parkingAvailability);
                 info.setPublicStatus(station.getString("groups_with_access_code"));
                 info.setIsPaid(isPaid);
                 info.setChargingLevels(hasLevel1, hasLevel2, hasDC);
                 info.setWorkingStatus(workingStatus);
+                info.setExpectedDate(expectedDate);
                 info.setImage("@drawable/ic_ev_station_black_24dp");
 
                 // Create the marker and add it to the map
                 MarkerOptions markerOptions = new MarkerOptions();
+
+                // Change the color of the marker depending on the charging availability
+                BitmapDescriptor bmf;
+                if (chargingAvailability == StationMarkerData.STATUS_AVAILABLE) {
+                    bmf = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+                } else if (chargingAvailability == StationMarkerData.STATUS_UNKNOWN) {
+                    bmf = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
+                } else {
+                    bmf = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+                }
+
                 markerOptions.position((stationLatLng)).title(stationName).snippet(stationAddress);
-                Marker m = mMap.addMarker(markerOptions);
+                Marker m = mMap.addMarker(markerOptions.icon(bmf));
                 m.setTag(info);
             }
         } catch (Exception e) {
@@ -550,9 +625,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             text = findViewById(R.id.bottom_sheet_charging_levels);
             text.setText("Charging Levels: " + stationData.getChargingLevels());
 
+            // Set the ID of the station
+            text = findViewById(R.id.bottom_sheet_station_id);
+            text.setText("Station ID: " + stationData.getID());
+
             // Set working status
+            // The status will be "E" if the station is Open
+            // The status will be "P" if the station is Planned to be opened
+            // The status will be "T" if the station is Temporarily Unavailable
+            // Get the "expected_date" value to see the estimated date of opening / reopening
             text = findViewById(R.id.bottom_sheet_working_status);
-            text.setText("Working Status: " + stationData.getWorkingStatus());
+            if (stationData.getWorkingStatus().equals("E")) {
+                text.setText("Working Status: Operating Normally");
+                text = findViewById(R.id.bottom_sheet_expected_date);
+                text.setVisibility(View.GONE);
+            } else if (stationData.getWorkingStatus().equals("P")) {
+                text.setText("Working Status: Planned to be Open");
+                text = findViewById(R.id.bottom_sheet_expected_date);
+                text.setVisibility(View.VISIBLE);
+                text.setText("Expected Working Date: " + stationData.getExpectedDate());
+            } else {
+                text.setText("Working Status: Temporarily Unavailable");
+                text = findViewById(R.id.bottom_sheet_expected_date);
+                text.setVisibility(View.VISIBLE);
+                text.setText("Expected Working Date: " + stationData.getExpectedDate());
+            }
+
+            // Set up the location button
+            FloatingActionButton getLocation = findViewById(R.id.bottom_sheet_button_location);
+            getLocation.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getLocationOfStation(marker);
+                }
+            });
+
+            // Set up the directions button
+            FloatingActionButton getDirections = findViewById(R.id.bottom_sheet_button_directions);
+            getDirections.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getPathToStation(marker.getPosition());
+                }
+            });
 
             // Make the bottom sheet visible, but leave it collapsed. Let the user decide to open it
             // TODO: Make it so the map size shrinks/grows with the bottom sheet opening/closing and keep the marker centered
@@ -586,6 +701,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void getPathToStation(LatLng stationLoc) {
         Intent googleMapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="
                 + stationLoc.latitude + "," + stationLoc.longitude));
+        googleMapIntent.setPackage("com.google.android.apps.maps");
+
+        /* Launch Google Maps if installed */
+        if (googleMapIntent.resolveActivity(getPackageManager()) != null)
+            startActivity(googleMapIntent);
+    }
+
+    /**
+     * ----------------------------------------------------------------------------------------------------------------
+     * getLocationOfStation - Launches Google Maps to the location of the desired station charging station
+     * ----------------------------------------------------------------------------------------------------------------
+     **/
+    private void getLocationOfStation(Marker marker) {
+        LatLng stationLoc = marker.getPosition();
+        Intent googleMapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q="
+                + stationLoc.latitude + "," + stationLoc.longitude + "(" + marker.getTitle() + ")"));
         googleMapIntent.setPackage("com.google.android.apps.maps");
 
         /* Launch Google Maps if installed */
