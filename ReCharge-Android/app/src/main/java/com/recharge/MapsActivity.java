@@ -495,6 +495,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 boolean freePreference = previousBooleanPreferences.get("switch_Free");
                 boolean isPaid = !station.getString("cards_accepted").equals("null");
 
+                if (stationID.equals("46846")) {
+                    isPaid = true;
+                }
+
                 if ((!paidPreference && isPaid) || (!freePreference && !isPaid)) {
                     continue;
                 }
