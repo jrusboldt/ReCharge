@@ -241,30 +241,64 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
         
         var matchedCriteria = true
         
-        // check if available switch is true and charging station is available
-        if userSettings.availableToggle && !station.isChargingAvaiable {
-            // check if busy switch is true
-            if !userSettings.busyToggle {
+        /* check station based on availability toggles */
+        
+        // check if only available is toggled
+        if userSettings.availableToggle && !userSettings.busyToggle {
+            if !station.isChargingAvaiable {
                 matchedCriteria = false
             }
         }
-        
-        // check if free switch is true and charging station is free
-        if userSettings.freeToggle && !station.isPaid {
-            // check if paid switch is true
-            if !userSettings.paidToggle {
+        // check if only busy is toggled
+        else if !userSettings.availableToggle && userSettings.busyToggle {
+            if station.isChargingAvaiable {
                 matchedCriteria = false
             }
         }
-        
-        if userSettings.standardToggle && !station.isStandardCharger {
+        // check if both are toggled off
+        else if !userSettings.availableToggle && !userSettings.busyToggle{
             matchedCriteria = false
         }
         
-        if userSettings.fastToggle && !station.isDCFastCharger {
+        /* check station based on cost toggles */
+        
+        // check if only free is toggled
+        if userSettings.freeToggle && !userSettings.paidToggle {
+            if station.isPaid {
+                matchedCriteria = false
+            }
+        }
+        // check if only paid is toggled
+        else if !userSettings.freeToggle && userSettings.paidToggle {
+            if !station.isPaid {
+                matchedCriteria = false
+            }
+        }
+        // check if both are toggled off
+        else if !userSettings.freeToggle && !userSettings.paidToggle {
             matchedCriteria = false
         }
         
+        /* check station based on charging type */
+        
+        // check if only standard is toggled
+        if userSettings.standardToggle && !userSettings.fastToggle {
+            if !station.isStandardCharger {
+                matchedCriteria = false
+            }
+        }
+        // check if only DC fast is toggled
+        else if !userSettings.standardToggle && userSettings.fastToggle {
+            if !station.isDCFastCharger {
+                matchedCriteria = false
+            }
+        }
+        // check if both are toggled off
+        else if !userSettings.standardToggle && !userSettings.fastToggle {
+            matchedCriteria = false
+        }
+        
+        // check if station should be added to the map
         if matchedCriteria {
             self.stations.append(station)
             mapView.addAnnotation(station)
@@ -369,7 +403,11 @@ extension ViewController: CLLocationManagerDelegate {
     
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        checkLocationAuthorization()
+        print("location auth changed")
+        
+        if status != CLLocationManager.authorizationStatus(){
+            checkLocationAuthorization()
+        }
     }
 }
 
