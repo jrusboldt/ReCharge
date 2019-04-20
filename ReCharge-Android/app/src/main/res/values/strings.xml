@@ -1,8 +1,42 @@
 <resources>
     <string name="app_name">Re:Charge</string>
     <string name="title_activity_maps">Re:Charge</string>
-    <string name="title_map">Map</string>
-    <string name="title_preferences">Settings</string>
-    <string name="title_my_location">Location</string>
-    <string name="title_station_search">Search</string>
+
+    <string name="navigation_map">Map</string>
+    <string name="navigation_station_refresh">Refresh</string>
+    <string name="navigation_my_location">Location</string>
+    <string name="navigation_preferences">Settings</string>
+
+    <string name="bottom_sheet_title">%1$s</string>
+
+    <string name="bottom_sheet_information_title">STATION INFORMATION</string>
+    <string name="bottom_sheet_address_label">Address:</string>
+    <string name="bottom_sheet_address_value">%1$s</string>
+    <string name="bottom_sheet_distance_label">Distance to Station:</string>
+    <string name="bottom_sheet_distance_value">%1$.2f Miles</string>
+    <string name="bottom_sheet_public_access_label">Public Access:</string>
+    <string name="bottom_sheet_public_access_value">%1$s</string>
+    <string name="bottom_sheet_address_details_label">Address Details:</string>
+    <string name="bottom_sheet_address_details_value">%1$s</string>
+    <string name="bottom_sheet_cost_status_label">Cost Status:</string>
+    <string name="bottom_sheet_cost_status_value">%1$s</string>
+    <string name="bottom_sheet_charging_levels_label">Charging Levels:</string>
+    <string name="bottom_sheet_charging_levels_value">%1$s</string>
+    <string name="bottom_sheet_station_id_label">Station ID:</string>
+    <string name="bottom_sheet_station_id_value">%1$s</string>
+
+    <string name="bottom_sheet_status_title">STATION STATUS</string>
+
+    <string name="bottom_sheet_charging_availability_label">Charging Availability:</string>
+    <string name="bottom_sheet_charging_availability_value">%1$s</string>
+    <string name="bottom_sheet_parking_availability_label">Parking Availability:</string>
+    <string name="bottom_sheet_parking_availability_value">%1$s</string>
+    <string name="bottom_sheet_working_status_label">Working Status:</string>
+    <string name="bottom_sheet_working_status_value">%1$s</string>
+    <string name="bottom_sheet_expected_date_label">Expected Working Date:</string>
+    <string name="bottom_sheet_expected_date_value">%1$s</string>
+
+    <string name="bottom_sheet_maps_title">OPEN IN GOOGLE MAPS</string>
+    <string name="bottom_sheet_locate_button">Locate</string>
+    <string name="bottom_sheet_directions_button">Directions</string>
 </resources>

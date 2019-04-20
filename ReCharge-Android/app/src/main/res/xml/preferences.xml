@@ -1,68 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SeekBarPreference
-            android:key="seekBar_Radius"
+            android:defaultValue="5"
             android:icon="@drawable/ic_zoom_out_map_black_24dp"
-            android:title="Proximity Radius (Miles)"
-            android:summary="Maximum distance from current location to show charging stations"
+            android:key="seekBar_Radius"
             android:max="100"
-            android:defaultValue="5"/>
+            android:summary="Maximum distance from current location to show charging stations"
+            android:title="Proximity Radius (Miles)"/>
 
     <SwitchPreferenceCompat
-            android:key="switch_Available"
+            android:defaultValue="true"
             android:icon="@drawable/ic_check_black_24dp"
-            android:title="Available Stations"
+            android:key="switch_Available"
             android:summary="Display available charging stations"
-            android:defaultValue="true"/>
+            android:title="Available Stations"/>
 
     <SwitchPreferenceCompat
-            android:key="switch_Unknown"
+            android:defaultValue="true"
             android:icon="@drawable/ic_priority_high_black_24dp"
-            android:title="Unknown Availability Stations"
+            android:key="switch_Unknown"
             android:summary="Display unknown availability charging stations"
-            android:defaultValue="true"/>
+            android:title="Unknown Availability Stations"/>
 
     <SwitchPreferenceCompat
-            android:key="switch_Unavailable"
+            android:defaultValue="true"
             android:icon="@drawable/ic_close_black_24dp"
-            android:title="Unavailable Stations"
+            android:key="switch_Unavailable"
             android:summary="Display unavailable charging stations"
-            android:defaultValue="true"/>
+            android:title="Unavailable Stations"/>
 
     <SwitchPreferenceCompat
-            android:key="switch_Paid"
+            android:defaultValue="true"
             android:icon="@drawable/ic_attach_money_black_24dp"
-            android:title="Paid Stations"
+            android:key="switch_Paid"
             android:summary="Display paid charging stations"
-            android:defaultValue="true"/>
+            android:title="Paid Stations"/>
 
     <SwitchPreferenceCompat
-            android:key="switch_Free"
+            android:defaultValue="true"
             android:icon="@drawable/ic_money_off_black_24dp"
-            android:title="Cost Free Stations"
+            android:key="switch_Free"
             android:summary="Display cost free charging stations"
-            android:defaultValue="true"/>
+            android:title="Cost Free Stations"/>
 
     <SwitchPreferenceCompat
-            android:key="switch_Level1Charging"
+            android:defaultValue="true"
             android:icon="@drawable/ic_battery_charging_30_black_24dp"
-            android:title="Level 1 EVSE Charging"
+            android:key="switch_Level1Charging"
             android:summary="Display Level 1 EVSE (Standard 110V Outlet) charging stations"
-            android:defaultValue="true"/>
+            android:title="Level 1 EVSE Charging"/>
 
     <SwitchPreferenceCompat
-            android:key="switch_Level2Charging"
+            android:defaultValue="true"
             android:icon="@drawable/ic_battery_charging_60_black_24dp"
-            android:title="Level 2 EVSE Charging"
+            android:key="switch_Level2Charging"
             android:summary="Display Level 2 EVSE (J1772 Connector) charging stations"
-            android:defaultValue="true"/>
+            android:title="Level 2 EVSE Charging"/>
 
     <SwitchPreferenceCompat
-            android:key="switch_DCCharging"
+            android:defaultValue="true"
             android:icon="@drawable/ic_battery_charging_90_black_24dp"
-            android:title="DC Fast Charging"
+            android:key="switch_DCCharging"
             android:summary="Display DC fast charging stations"
-            android:defaultValue="true"/>
+            android:title="DC Fast Charging"/>
 
 </PreferenceScreen>

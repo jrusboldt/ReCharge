@@ -22,9 +22,10 @@ public class StationMarkerData {
     private String workingStatus;
     private String address;
     private String expectedDate;
+    private String intersectionDirections;
 
     public String getID() {
-        return ID;
+        return this.ID;
     }
 
     public void setID(String ID) {
@@ -50,7 +51,8 @@ public class StationMarkerData {
     }
 
     public void setDistance(double distance) {
-        this.distance = (double) Math.round(distance * 100) / 100;
+        //this.distance = (double) Math.round(distance * 100) / 100;
+        this.distance = distance;
     }
 
     public int getChargingAvailability() {
@@ -142,5 +144,13 @@ public class StationMarkerData {
 
     public String getExpectedDate() {
         return this.expectedDate;
+    }
+
+    public void setIntersectionDirections(String intersectionDirections) {
+        this.intersectionDirections = intersectionDirections;
+    }
+
+    public String getIntersectionDirections() {
+        return this.intersectionDirections;
     }
 }
