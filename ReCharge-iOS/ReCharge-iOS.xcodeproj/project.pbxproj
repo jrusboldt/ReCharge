@@ -17,6 +17,7 @@
 		D0BEA766220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA764220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld */; };
 		D0BEA768220A2DEA00FF2485 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BEA767220A2DEA00FF2485 /* Assets.xcassets */; };
 		D0BEA76B220A2DEA00FF2485 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0BEA769220A2DEA00FF2485 /* LaunchScreen.storyboard */; };
+		D0EE1020226F7A8A0043233D /* StationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0EE101F226F7A8A0043233D /* StationStatus.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		D0BEA767220A2DEA00FF2485 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D0BEA76A220A2DEA00FF2485 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D0BEA76C220A2DEA00FF2485 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D0EE101F226F7A8A0043233D /* StationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationStatus.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				7BC2CA3E2217BCD900309445 /* FuelStation.swift */,
+				D0EE101F226F7A8A0043233D /* StationStatus.swift */,
 				D0AA1122221BBE7300D493E0 /* SettingsViewController.swift */,
 				D0A3CC4C221F8E140028694C /* Settings.swift */,
 				D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */,
@@ -153,6 +156,7 @@
 				D0BEA766220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld in Sources */,
 				7BCBE6AE2218CCDC009A6A8D /* InfoPaneViewController.swift in Sources */,
 				D0BEA760220A2DEA00FF2485 /* ViewController.swift in Sources */,
+				D0EE1020226F7A8A0043233D /* StationStatus.swift in Sources */,
 				7BC2CA3F2217BCD900309445 /* FuelStation.swift in Sources */,
 				D0AA1123221BBE7300D493E0 /* SettingsViewController.swift in Sources */,
 				D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */,

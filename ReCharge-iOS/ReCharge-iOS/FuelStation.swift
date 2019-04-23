@@ -56,6 +56,7 @@ struct NRELFuelStation: Decodable {
 
 class FuelStationAnnotation: NSObject, MKAnnotation {
     // instance variables (some commented out for initial testing)
+    var stationID : Int
     var stationName : String?
     var stationPhone : String?
     var city : String
@@ -74,6 +75,7 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
     
     init(obj: NRELFuelStation){
         
+        self.stationID = obj.id
         self.stationName = obj.station_name
         self.stationPhone = obj.station_phone
         self.city = obj.city

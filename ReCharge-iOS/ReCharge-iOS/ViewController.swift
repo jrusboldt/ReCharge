@@ -113,6 +113,8 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        testCount = 0
+        
         if mapView.annotations.count != 0 {
             print("annotations removed")
             mapView.removeAnnotation(mapView!.annotations as! MKAnnotation)
@@ -226,6 +228,9 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                     self.addStationAnnotation(station: temp)
                 }
                 
+                /* get real-time station status */
+                self.getStationStatus()
+                
             } catch let jsonErr {
                 print("lat: \(coordinate.latitude)\nlon: \(coordinate.longitude)")
                 print("Error serializing json: ", jsonErr)
@@ -235,6 +240,55 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
         
     }
     
+    /* pull data from real-time database */
+    
+    func getStationStatus () {
+        let urlString = "http://18.224.1.103:8080/api/status/all"
+        
+        guard let url = URL(string: urlString) else { return }
+        
+        
+        URLSession.shared.dataTask(with: url) { (data, response, err) in
+            
+            //TODO: check err
+            //TODO: check response status is 200 OK
+            
+            guard let data = data else {return}
+            
+            do {
+                let AWSJson = try JSONDecoder().decode(AWSJsonObj.self, from: data)
+                
+                
+                print(AWSJson)
+                
+                // loop through each station currently on the map
+                for station in self.stations {
+                    // loop through each station with status in AWS database
+                    for stationStatus in AWSJson.response {
+                        // check if station id matches up
+                        if station.stationID == stationStatus.ID {
+                            
+                            // TDOD remove and redraw station annotation
+                            
+                            if stationStatus.AVAILABLE == "Y" {
+                                station.isChargingAvaiable = true
+                            }
+                            else {
+                                station.isChargingAvaiable = false
+                            }
+                            
+                            // TODO available spaces?
+                        }
+                    }
+                }
+                
+            } catch let jsonErr {
+                print("Error serializing json: ", jsonErr)
+            }
+            
+            }.resume()
+    }
+
     //adds map annotations using array of stations pulled from NREL database
     func addStationAnnotation(station: FuelStationAnnotation) {
         
