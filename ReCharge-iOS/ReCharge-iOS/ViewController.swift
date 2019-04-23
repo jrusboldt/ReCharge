@@ -86,19 +86,7 @@ extension ViewController: MKMapViewDelegate {
             let fuelStation = annotation as? FuelStationAnnotation {
             
             embeddedViewController.annotation = fuelStation
-            /*
-            embeddedViewController.stationName.text = fuelStation.station_name
-            embeddedViewController.streetAddress.text = fuelStation.street_address
-            if (fuelStation.is_parking_avaiable){
-                embeddedViewController.isParkingAvaiable.text = "Yes"
-            } else {
-                embeddedViewController.isParkingAvaiable.text = "No"
-            }
-            if (fuelStation.is_charging_avaiable){
-                embeddedViewController.isChargingAvaiable.text = "Yes"
-            } else {
-                embeddedViewController.isChargingAvaiable.text = "No"
-            }*/
+    
             embeddedViewController.populateInfoPane(fuelStation: fuelStation)
             embeddedViewController.showInfoPane()
         }
@@ -182,33 +170,6 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
         
         guard let url = URL(string: urlString) else { return }
     
-        /*let configuration = URLSessionConfiguration.ephemeral
-        let session = URLSession(configuration: configuration, delegate: nil, delegateQueue: OperationQueue.main)
-        let task = session.dataTask(with: scriptUrl, completionHandler: { [weak self] (data: Data?, response: URLResponse?, error: Error?) -> Void in
-            // Parse the data in the response and use it
-            do {
-                let json = try JSONSerialization.jsonObject(with: data!, options: []) as! [String: AnyObject]
-                
-                print(json)
-                
-                //let stationArray = json["fuel_stations"]
-                //print(stationArray)
-                
-                //TODO figure out how to parse JSON object
-                
-                //hardcode in station data for West Lafette
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Armory", street_address: "812 3rd St\nWest Lafayette, IN", is_paid: false, latitude: 40.4277617, longitude: -86.9162607))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Northwestern Parking Garage", street_address: "460 Northwestern Ave\nWest Lafayette, IN", is_paid: false, latitude: 40.4296753, longitude: -86.9120266))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - University Street Garage", street_address: "610 Purdue Mall\nWest Lafayette, IN", is_paid: true, latitude: 40.426713, longitude: -86.917213))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Grant Street Parking Garage", street_address: "120 N Grant St\nWest Lafayette, IN", is_paid: false, latitude: 40.4244203, longitude: -86.9103211))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Harrison Street Garage", street_address: "719 Clinic Dr\nWest Lafayette, IN", is_paid: true, latitude: 40.421241, longitude: -86.917619))
-                
-                self?.addStationAnnotations()
-            } catch let error as NSError {
-                print("Failed to load: \(error.localizedDescription)")
-            }
-        })
-        task.resume()*/
         
         URLSession.shared.dataTask(with: url) { (data, response, err) in
             
@@ -279,31 +240,64 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
         
         var matchedCriteria = true
         
-        // check if available switch is true and charging station is available
-        if userSettings.availableToggle && !station.isChargingAvaiable {
-            // check if busy switch is true
-            if !userSettings.busyToggle {
+        /* check station based on availability toggles */
+        
+        // check if only available is toggled
+        if userSettings.availableToggle && !userSettings.busyToggle {
+            if !station.isChargingAvaiable {
                 matchedCriteria = false
             }
         }
-        
-        // check if free switch is true and charging station is free
-        if userSettings.freeToggle && !station.isPaid {
-            // check if paid switch is true
-            if !userSettings.paidToggle {
+        // check if only busy is toggled
+        else if !userSettings.availableToggle && userSettings.busyToggle {
+            if station.isChargingAvaiable {
                 matchedCriteria = false
             }
         }
-        
-        // check if standard switch is try and station is standard charging
-        if userSettings.standardToggle && !station.isStandardCharger {
-            matchedCriteria = false
-        }
-        // check if fast switch is try and station is fast charging
-        if userSettings.fastToggle && !station.isDCFastCharger {
+        // check if both are toggled off
+        else if !userSettings.availableToggle && !userSettings.busyToggle{
             matchedCriteria = false
         }
         
+        /* check station based on cost toggles */
+        
+        // check if only free is toggled
+        if userSettings.freeToggle && !userSettings.paidToggle {
+            if station.isPaid {
+                matchedCriteria = false
+            }
+        }
+        // check if only paid is toggled
+        else if !userSettings.freeToggle && userSettings.paidToggle {
+            if !station.isPaid {
+                matchedCriteria = false
+            }
+        }
+        // check if both are toggled off
+        else if !userSettings.freeToggle && !userSettings.paidToggle {
+            matchedCriteria = false
+        }
+        
+        /* check station based on charging type */
+        
+        // check if only standard is toggled
+        if userSettings.standardToggle && !userSettings.fastToggle {
+            if !station.isStandardCharger {
+                matchedCriteria = false
+            }
+        }
+        // check if only DC fast is toggled
+        else if !userSettings.standardToggle && userSettings.fastToggle {
+            if !station.isDCFastCharger {
+                matchedCriteria = false
+            }
+        }
+        // check if both are toggled off
+        else if !userSettings.standardToggle && !userSettings.fastToggle {
+            matchedCriteria = false
+        }
+        
+        // check if station should be added to the map
         if matchedCriteria {
             
             self.stations.append(station)
@@ -409,7 +403,11 @@ extension ViewController: CLLocationManagerDelegate {
     
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        checkLocationAuthorization()
+        print("location auth changed")
+        
+        if status != CLLocationManager.authorizationStatus(){
+            checkLocationAuthorization()
+        }
     }
 }
 
