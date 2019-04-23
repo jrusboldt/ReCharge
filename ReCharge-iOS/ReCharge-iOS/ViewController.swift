@@ -306,7 +306,9 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     }
     
     private func registerMapAnnotationViews() {
-        mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(ChargingStationAnnotation.self))
+       // mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(ChargingStationAnnotation.self))
+        mapView.register(FuelStationAnnotationView.self,
+                         forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
     }
 
     func setupLocationManager() {
