@@ -86,19 +86,7 @@ extension ViewController: MKMapViewDelegate {
             let fuelStation = annotation as? FuelStationAnnotation {
             
             embeddedViewController.annotation = fuelStation
-            /*
-            embeddedViewController.stationName.text = fuelStation.station_name
-            embeddedViewController.streetAddress.text = fuelStation.street_address
-            if (fuelStation.is_parking_avaiable){
-                embeddedViewController.isParkingAvaiable.text = "Yes"
-            } else {
-                embeddedViewController.isParkingAvaiable.text = "No"
-            }
-            if (fuelStation.is_charging_avaiable){
-                embeddedViewController.isChargingAvaiable.text = "Yes"
-            } else {
-                embeddedViewController.isChargingAvaiable.text = "No"
-            }*/
+    
             embeddedViewController.populateInfoPane(fuelStation: fuelStation)
             embeddedViewController.showInfoPane()
         }
