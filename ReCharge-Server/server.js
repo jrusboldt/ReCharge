@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded({
 
 var server = app.listen(process.env.PORT || 8080, function () {
     var port = server.address().port;
-    console.log("App now running on port", port);
+    console.log("[" + getFormattedDate() + "] " + "App now running on port", port);
  });
 
 var mysql = require('mysql');
@@ -24,19 +24,19 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
   if (err) {
-    console.error('Database connection failed: ' + err.stack);
+    console.error("[" + getFormattedDate() + "] " + 'Database connection failed: ' + err.stack);
     return;
   }
-  console.log('Connected to database.');
+  console.log("[" + getFormattedDate() + "] " + 'Connected to database.');
 });
 
-setInterval(emulateSensor, 10000);
+setInterval(emulateSensor, 600000);
 
 var  executeQuery = function(res, query){
   connection.query(query, function (error, results, fields) {
 		if (error) {
       res.send(JSON.stringify({"status": 100, "error": error, "response": null}));
-      console.log(error);
+      console.log("[" + getFormattedDate() + "] " + error);
     } else {
 		res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
   }
@@ -101,22 +101,29 @@ function emulateSensor() {
 
     connection.query(insertQuery, function (error, results, fields) {
       if (error) {
-        console.log("EMULATION INSERTION ERROR: " + error);
+        console.log("[" + getFormattedDate() + "] " + "EMULATION INSERTION ERROR: " + error);
       } else {
-        console.log("EMULATION INSERTION SUCCESS");
+        console.log("[" + getFormattedDate() + "] " + "EMULATION INSERTION SUCCESS");
         if (remainUnchanged == 0) {
-          console.log("EMULATION UPDATE SUCCESS | (SKIPPED)");
-          console.log("Waiting...");
+          console.log("[" + getFormattedDate() + "] " + "EMULATION UPDATE SUCCESS | (SKIPPED)");
+          console.log("[" + getFormattedDate() + "] " + "Waiting...");
         } else {
           connection.query(updateQuery, function (error, results, fields) {
             if (error) {
-              console.log("EMULATION UPDATE ERROR: " + error);
+              console.log("[" + getFormattedDate() + "] " + "EMULATION UPDATE ERROR: " + error);
             } else {
-              console.log("EMULATION UPDATE SUCCESS | Using Charger: " + usingCharger + " | Parking Spaces: " + (firstParkingSpace + secondParkingSpace));
-              console.log("Waiting...");
+              console.log("[" + getFormattedDate() + "] " + "EMULATION UPDATE SUCCESS | Using Charger: " + usingCharger + " | Parking Spaces: " + (firstParkingSpace + secondParkingSpace));
+              console.log("[" + getFormattedDate() + "] " + "Waiting...");
             }
           });
         }
       }
     });
+}
+
+//Credit goes to StackOverflow (https://stackoverflow.com/questions/926332/how-to-get-formatted-date-time-like-2009-05-29-215557-using-javascript)
+function getFormattedDate() {
+    var date = new Date();
+    var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    return str;
 }
