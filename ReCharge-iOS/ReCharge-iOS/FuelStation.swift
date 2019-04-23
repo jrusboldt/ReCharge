@@ -116,54 +116,6 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
         }
         
     }
-
-    /*
-    init(JSONString: String) {
-    super.init()
-
-        var error : NSError?
-        let JSONData = JSONString.data(using: String.Encoding.utf8, allowLossyConversion: false)
-
-        let JSONDictionary: Dictionary = JSONSerialization.JSONObjectWithData(JSONData, options: nil) as NSDictionary
-
-        // Loop
-        for (key, value) in JSONDictionary {
-            let keyName = key as String
-            let keyValue: String = value as String
-
-            // If property exists
-            if (self.respondsToSelector(NSSelectorFromString(keyName))) {
-                self.setValue(keyValue, forKey: keyName)
-            }
-        }
-
-        self.title = station_name
-        self.coordinate = CLLocationCoordinate2D(latitude: self.latitude, longitude: self.longitude)
-
-    }
- 
-
-    init(stationName: String, streetAddress: String, isParkingAvaiable : Bool, isChargingAvaiable : Bool, isPaid: Bool, coordinate: CLLocationCoordinate2D) {
-        self.station_name = stationName
-        self.street_address = streetAddress
-        self.is_parking_avaiable = isParkingAvaiable
-        self.is_charging_avaiable = isChargingAvaiable
-        self.is_paid = isPaid
-        self.coordinate = coordinate
-        
-        super.init()
-    }
-    
-    init(station_name: String, street_address: String, is_paid: Bool, latitude: Double, longitude: Double) {
-        self.station_name = station_name
-        self.is_paid = is_paid
-        self.street_address = street_address
-        self.is_parking_avaiable = false
-        self.is_charging_avaiable = false
-        self.coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        
-        super.init()
-    }*/
     
     var title: String? {
         return stationName
@@ -182,4 +134,46 @@ class FuelStationAnnotation: NSObject, MKAnnotation {
         return mapItem
     }
 
+}
+
+class FuelStationAnnotationView: MKAnnotationView {
+    override var annotation: MKAnnotation? {
+        willSet {
+            guard let fuel_station = newValue as? FuelStationAnnotation else {return}
+            
+            if !fuel_station.isOpen {
+                image = UIImage(named: "location-pin-not-in-service")
+            }
+            else {
+                if fuel_station.isPaid{
+                    if fuel_station.isChargingAvaiable && fuel_station.isParkingAvaiable{
+                        image = UIImage(named: "location-pin-paid-avaiable")
+                    }
+                    else if !fuel_station.isChargingAvaiable && fuel_station.isParkingAvaiable{
+                        image = UIImage(named: "location-pin-paid-no-charging")
+                    }
+                    else if fuel_station.isChargingAvaiable && !fuel_station.isParkingAvaiable{
+                        image = UIImage(named: "location-pin-paid-no-parking")
+                    }
+                    else{
+                        image = UIImage(named: "location-pin-paid-no-charging&parking")
+                    }
+                }
+                else {
+                    if fuel_station.isChargingAvaiable && fuel_station.isParkingAvaiable{
+                        image = UIImage(named: "location-pin-avaiable")
+                    }
+                    else if !fuel_station.isChargingAvaiable && fuel_station.isParkingAvaiable{
+                        image = UIImage(named: "location-pin-no-charging")
+                    }
+                    else if fuel_station.isChargingAvaiable && !fuel_station.isParkingAvaiable{
+                        image = UIImage(named: "location-pin-no-parking")
+                    }
+                    else{
+                        image = UIImage(named: "location-pin-no-charging&parking")
+                    }
+                }
+            }
+        }
+    }
 }
