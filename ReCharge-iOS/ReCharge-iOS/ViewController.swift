@@ -189,7 +189,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                 for fuel_station in NRELJson.fuel_stations {
                     let temp = FuelStationAnnotation(obj: fuel_station)
                     
-                    //test data
+                    /* test data
                     if testCount == 0 {
                         temp.isChargingAvaiable = true
                         temp.isPaid = false
@@ -223,7 +223,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                     }
                     
                     testCount += 1
-
+ */
                     
                     self.addStationAnnotation(station: temp)
                 }
@@ -269,6 +269,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                         if station.stationID == stationStatus.ID {
                             
                             // TDOD remove and redraw station annotation
+                            self.mapView.removeAnnotation(station)
                             
                             if stationStatus.AVAILABLE == "Y" {
                                 station.isChargingAvaiable = true
@@ -276,6 +277,8 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                             else {
                                 station.isChargingAvaiable = false
                             }
+                            
+                            self.addStationAnnotation(station: station)
                             
                             // TODO available spaces?
                         }
