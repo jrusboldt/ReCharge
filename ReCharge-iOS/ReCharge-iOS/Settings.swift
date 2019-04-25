@@ -17,6 +17,8 @@ class Settings : NSObject, NSCoding{
     var paidToggle : Bool
     var standardToggle : Bool
     var fastToggle : Bool
+    var alertAllStations : Bool
+    var alertStations = [Int]()
     
     init(proximity: Double) {
         self.proximity = proximity
@@ -25,7 +27,8 @@ class Settings : NSObject, NSCoding{
         self.freeToggle = true
         self.paidToggle = true
         self.standardToggle = true
-        self.fastToggle = false
+        self.fastToggle = true
+        self.alertAllStations = false
     }
     
     struct PropertyKey {

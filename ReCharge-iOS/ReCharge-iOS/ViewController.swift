@@ -123,8 +123,16 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
         view.addSubview(containerView)
         self.closeInfoPane()
         checkLocationServices()
-        //self.mapView.showAnnotations(self.mapView.annotations, animated: true)
-    
+        
+
+        let dispatchQueue = DispatchQueue(label: "QueueIdentification", qos: .background)
+        dispatchQueue.async{
+            while true {
+                sleep(10)
+                self.updateStationStatus()
+            }
+        }
+
         //userSettings = loadSettings()!
     }
     
@@ -229,7 +237,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                 }
                 
                 /* get real-time station status */
-                self.getStationStatus()
+                self.updateStationStatus()
                 
             } catch let jsonErr {
                 print("lat: \(coordinate.latitude)\nlon: \(coordinate.longitude)")
@@ -242,7 +250,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     
     /* pull data from real-time database */
     
-    func getStationStatus () {
+    func updateStationStatus () {
         let urlString = "http://18.224.1.103:8080/api/status/all"
         
         guard let url = URL(string: urlString) else { return }
@@ -268,17 +276,26 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                         // check if station id matches up
                         if station.stationID == stationStatus.ID {
                             
-                            // TDOD remove and redraw station annotation
-                            self.mapView.removeAnnotation(station)
+                            print("updating station \(station.stationID)")
                             
-                            if stationStatus.AVAILABLE == "Y" {
-                                station.isChargingAvaiable = true
-                            }
-                            else {
-                                station.isChargingAvaiable = false
-                            }
+                            DispatchQueue.main.async {
+                                // Update UI
+                                // TDOD remove and redraw station annotation
+                                self.mapView.removeAnnotation(station)
+                                
+                                if stationStatus.AVAILABLE == "Y" {
+                                    // TODO check if all station alerts are enabled
+                                    // TODO check if alerts are enabled for this station
+                                    
+                                    station.isChargingAvaiable = true
+                                }
+                                else {
+                                    station.isChargingAvaiable = false
+                                }
                             
-                            self.addStationAnnotation(station: station)
+                                self.addStationAnnotation(station: station)
+                            
+                            }
                             
                             // TODO available spaces?
                         }
@@ -356,8 +373,10 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
         
         // check if station should be added to the map
         if matchedCriteria {
-            
-            self.stations.append(station)
+            // check if station is not already in the list
+            if !self.stations.contains(station) {
+                self.stations.append(station)
+            }
             mapView.addAnnotation(station)
         }
     }
