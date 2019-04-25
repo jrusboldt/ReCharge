@@ -1,8 +1,14 @@
 package com.recharge;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -17,6 +23,8 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,6 +70,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private final int PREFERENCES_CHANGE_NONRADIUS = 1;
     private final int PREFERENCES_CHANGE_RADIUS = 2;
 
+    // Notifications constants
+    private final String NOTIFICATIONS_NEARBY_CHANNEL = "NEARBY_STATIONS_CHANNEL_ID";
+
     // Request constants
     private final int REQUEST_API_NREL = 1;
     private final int REQUEST_API_SERVER = 2;
@@ -72,7 +83,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private SupportMapFragment mapFragment;
     private BottomSheetBehavior bottomSheetBehavior;
     private JSONObject stationAvailabilityJSON;
-    private HashMap<String, String> stationAvailabilityMap;
     private HashMap<String, Marker> stationMarkerMap;
 
     // Preference variables
@@ -107,7 +117,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         previousBooleanPreferences = new HashMap<>();
         previousIntegerPreferences = new HashMap<>();
-        stationAvailabilityMap = new HashMap<>();
         stationMarkerMap = new HashMap<>();
 
         // Set up the bottom sheet
@@ -116,6 +125,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         bottomSheetBehavior.setPeekHeight(120);
         bottomSheetBehavior.setHideable(true);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        // Set up the notification system
+        setupNotificationSystem();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = SupportMapFragment.newInstance();
@@ -154,6 +166,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Request and display all the stations within the radius determined by the user
         requestAndDisplayStations(lastKnownLocation, true);
     }
+
+
+    private void setupNotificationSystem() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.notifications_stations_nearby_name);
+            String description = getString(R.string.notifications_stations_nearby_description);
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.deleteNotificationChannel(NOTIFICATIONS_NEARBY_CHANNEL);
+
+            NotificationChannel channel = new NotificationChannel(NOTIFICATIONS_NEARBY_CHANNEL, name, importance);
+            channel.setDescription(description);
+            channel.enableLights(true);
+            channel.setLightColor(R.color.colorGold);
+            channel.enableVibration(true);
+            //channel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
 
     /**
      * ----------------------------------------------------------------------------------------------------------------
@@ -200,6 +238,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Snackbar.make(findViewById(R.id.bottom_sheet_wrapper),
                 "This is just a test!",
                 Snackbar.LENGTH_LONG).show();
+
+        // Create an explicit intent for an Activity in your app
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATIONS_NEARBY_CHANNEL)
+                .setSmallIcon(R.drawable.ic_stat_name)
+                .setContentTitle("Nearby Station Available")
+                .setContentText("A nearby station is now available!")
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                // Set the intent that will fire when the user taps the notification
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(0, builder.build());
     }
 
     /**
@@ -426,8 +483,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject stationAvailability = jsonArray.getJSONObject(i);
-                        stationAvailabilityMap.put(stationAvailability.getString("ID"),
-                                stationAvailability.getString("AVAILABLE"));
+
+                        Marker marker = stationMarkerMap.get(stationAvailability.getString("ID"));
+
+                        if (marker == null) {
+                            continue;
+                        }
+
+                        StationMarkerData stationData = (StationMarkerData) marker.getTag();
+
+                        if (stationData == null) {
+                            continue;
+                        }
+
+                        stationData.setChargingAvailabilityString(stationAvailability.getString("AVAILABLE"));
+                        stationData.setParkingAvailabilityString(stationAvailability.getString("REMAINING_SPACE"));
                     }
 
                 } catch (JSONException e) {
@@ -549,28 +619,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 continue;
             }
 
-            // At this point, the station matches all user preferences
-            // Update the availability status if it is available
-            String availabilityLookup = stationAvailabilityMap.get(stationData.getID());
+            // Set the color of the marker icon depending on the charging and parking availability
+            int charging = stationData.getChargingAvailability();
+            int parking = stationData.getParkingAvailability();
+            boolean paid = stationData.getIsPaid();
+            if (!paid && charging == StationMarkerData.STATUS_AVAILABLE && parking == StationMarkerData.STATUS_AVAILABLE) {
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_available)).getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
+                i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
 
-            // If the availability status is not null, then it is being tracked
-            // Update the status based on the stored value
-            // "Y" indicates available
-            if (availabilityLookup != null) {
-                if (availabilityLookup.equals("Y")) {
-                    stationData.setChargingAvailability(StationMarkerData.STATUS_AVAILABLE);
-                } else {
-                    stationData.setChargingAvailability(StationMarkerData.STATUS_UNAVAILABLE);
-                }
-            }
+            } else if (!paid && charging == StationMarkerData.STATUS_AVAILABLE && parking == StationMarkerData.STATUS_UNAVAILABLE) {
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_no_parking)).getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
+                i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
 
-            // Set the color of the marker icon depending on the charging availability
-            if (stationData.getChargingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
-                i.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-            } else if (stationData.getChargingAvailability() == StationMarkerData.STATUS_UNKNOWN) {
-                i.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+            } else if (!paid && charging == StationMarkerData.STATUS_UNAVAILABLE && parking == StationMarkerData.STATUS_AVAILABLE) {
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_no_charging)).getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
+                i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+            } else if (!paid && charging == StationMarkerData.STATUS_UNAVAILABLE && parking == StationMarkerData.STATUS_UNAVAILABLE) {
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_no_parking_charging)).getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
+                i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+            } else if (paid && charging == StationMarkerData.STATUS_AVAILABLE && parking == StationMarkerData.STATUS_AVAILABLE) {
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_paid_available)).getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
+                i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+            } else if (paid && charging == StationMarkerData.STATUS_AVAILABLE && parking == StationMarkerData.STATUS_UNAVAILABLE) {
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_paid_no_parking)).getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
+                i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+            } else if (paid && charging == StationMarkerData.STATUS_UNAVAILABLE && parking == StationMarkerData.STATUS_AVAILABLE) {
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_paid_no_charging)).getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
+                i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+            } else if (paid && charging == StationMarkerData.STATUS_UNAVAILABLE && parking == StationMarkerData.STATUS_UNAVAILABLE) {
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_paid_no_parking_charging)).getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
+                i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
             } else {
-                i.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_not_in_service)).getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
+                i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
             }
 
             // Make the station visible

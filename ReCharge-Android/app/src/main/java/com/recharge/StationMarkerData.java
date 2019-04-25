@@ -274,7 +274,19 @@ public class StationMarkerData {
         }
     }
 
+    public void setChargingAvailabilityString(String availability) {
+        if (availability.equals("Y")) {
+            this.chargingAvailability = STATUS_AVAILABLE;
+        } else {
+            this.chargingAvailability = STATUS_UNAVAILABLE;
+        }
+    }
+
     public void setChargingAvailability(int availability) {
+        if (availability < STATUS_AVAILABLE || availability > STATUS_UNKNOWN) {
+            this.chargingAvailability = STATUS_UNKNOWN;
+        }
+
         this.chargingAvailability = availability;
     }
 
@@ -294,7 +306,21 @@ public class StationMarkerData {
         }
     }
 
+    public void setParkingAvailabilityString(String availability) {
+        int res = Integer.parseInt(availability);
+
+        if (res > 0) {
+            this.parkingAvailability = STATUS_AVAILABLE;
+        } else {
+            this.parkingAvailability = STATUS_UNAVAILABLE;
+        }
+    }
+
     public void setParkingAvailability(int availability) {
+        if (availability < STATUS_AVAILABLE || availability > STATUS_UNKNOWN) {
+            this.parkingAvailability = STATUS_UNKNOWN;
+        }
+
         this.parkingAvailability = availability;
     }
 
