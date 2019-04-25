@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -28,6 +29,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +54,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -72,6 +77,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     // Notifications constants
     private final String NOTIFICATIONS_NEARBY_CHANNEL = "NEARBY_STATIONS_CHANNEL_ID";
+    private final String NOTIFICATIONS_TRACKING_CHANNEL = "TRACKING_STATIONS_CHANNEL_ID";
+    private static ScheduledExecutorService repeater;
+    private static boolean firstRun;
 
     // Request constants
     private final int REQUEST_API_NREL = 1;
@@ -128,6 +136,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Set up the notification system
         setupNotificationSystem();
+        repeater = Executors.newSingleThreadScheduledExecutor();
+        firstRun = true;
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = SupportMapFragment.newInstance();
@@ -167,7 +177,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         requestAndDisplayStations(lastKnownLocation, true);
     }
 
-
+    /**
+     * ----------------------------------------------------------------------------------------------------------------
+     * setupNotificationSystem - Function used to initialize the notification system
+     * This creates the required notification channels on Android if the Android version is new enough to require it
+     * ----------------------------------------------------------------------------------------------------------------
+     **/
     private void setupNotificationSystem() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -177,21 +192,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             int importance = NotificationManager.IMPORTANCE_HIGH;
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.deleteNotificationChannel(NOTIFICATIONS_NEARBY_CHANNEL);
-
             NotificationChannel channel = new NotificationChannel(NOTIFICATIONS_NEARBY_CHANNEL, name, importance);
             channel.setDescription(description);
             channel.enableLights(true);
-            channel.setLightColor(R.color.colorGold);
+            channel.setLightColor(Color.YELLOW);
             channel.enableVibration(true);
-            //channel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
 
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
             notificationManager.createNotificationChannel(channel);
+
+            name = getString(R.string.notifications_stations_tracking_name);
+            description = getString(R.string.notifications_stations_tracking_description);
+            channel = new NotificationChannel(NOTIFICATIONS_TRACKING_CHANNEL, name, importance);
+            channel.setDescription(description);
+            channel.enableLights(true);
+            channel.setLightColor(Color.YELLOW);
+            channel.enableVibration(true);
+
+            // Register the channel with the system
+            notificationManager.createNotificationChannel(channel);
         }
     }
-
 
     /**
      * ----------------------------------------------------------------------------------------------------------------
@@ -231,6 +253,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
+    /**
+     * ----------------------------------------------------------------------------------------------------------------
+     * onBackPressed - Listener for when the back button is pressed by the user
+     * This can be used to handle any action that we wish when the user presses the back button
+     * ----------------------------------------------------------------------------------------------------------------
+     **/
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -238,17 +266,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Snackbar.make(findViewById(R.id.bottom_sheet_wrapper),
                 "This is just a test!",
                 Snackbar.LENGTH_LONG).show();
+    }
 
+    /**
+     * ----------------------------------------------------------------------------------------------------------------
+     * sendNotification - Function used to display a push notification to the user
+     * This can be used to handle any action that we wish when the user presses the back button
+     * ----------------------------------------------------------------------------------------------------------------
+     **/
+    public void sendNotification(String ChannelID, String title, String content) {
         // Create an explicit intent for an Activity in your app
         Intent intent = new Intent(this, MapsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATIONS_NEARBY_CHANNEL)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ChannelID)
                 .setSmallIcon(R.drawable.ic_stat_name)
-                .setContentTitle("Nearby Station Available")
-                .setContentText("A nearby station is now available!")
+                .setContentTitle(title)
+                .setContentText(content)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(content))
                 .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 // Set the intent that will fire when the user taps the notification
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
@@ -387,6 +425,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
             // Handle other preference types here if they exist
+            // Skip those with the "tracking" prefix as they are not used for filtering
         }
 
         // Return the status of the preferences check
@@ -418,7 +457,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // If the radius was not updated, then skip requesting the NREL database for a new list
         // Instead, skip to requesting for updates on the availability of the charging stations from our server
         if (!override && (preferenceChangeResult == PREFERENCES_CHANGE_NONRADIUS)) {
-            sendAPIRequest(REQUEST_API_SERVER, Request.Method.GET, REQUEST_API_SERVER_URL);
+            sendAPIRequest(REQUEST_API_SERVER, Request.Method.GET, REQUEST_API_SERVER_URL, false);
             return;
         }
 
@@ -449,7 +488,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 radius + "&fuel_type=ELEC" + "&limit=200";
 
         // Send the request to the NREL database for the station list
-        sendAPIRequest(REQUEST_API_NREL, Request.Method.GET, URL);
+        sendAPIRequest(REQUEST_API_NREL, Request.Method.GET, URL, false);
     }
 
     /**
@@ -461,7 +500,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * to display the results on the map.
      * ----------------------------------------------------------------------------------------------------------------
      **/
-    private void sendAPIRequest(int site, int request, String URL) {
+    private void sendAPIRequest(int site, int request, String URL, boolean repeatingCall) {
         // Initialize the request queue
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -472,32 +511,73 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // Note: response is a JSONObject
             if (site == REQUEST_API_NREL) {
                 parseStations(response);
-                sendAPIRequest(REQUEST_API_SERVER, Request.Method.GET, REQUEST_API_SERVER_URL);
+                sendAPIRequest(REQUEST_API_SERVER, Request.Method.GET, REQUEST_API_SERVER_URL, false);
 
                 // If this is a response from our server, save the response and then call displayStations
             } else if (site == REQUEST_API_SERVER) {
                 stationAvailabilityJSON = response;
+                boolean updated = false;
 
                 try {
+                    // Get the station array from our server response
                     JSONArray jsonArray = stationAvailabilityJSON.getJSONArray("response");
 
+                    // For every station in the station array, update the availability status
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject stationAvailability = jsonArray.getJSONObject(i);
 
+                        // Get the marker of the station we are updating
                         Marker marker = stationMarkerMap.get(stationAvailability.getString("ID"));
 
+                        // If the marker does not exist, then skip this entry
                         if (marker == null) {
                             continue;
                         }
 
+                        // Get the associated data of the marker
                         StationMarkerData stationData = (StationMarkerData) marker.getTag();
 
+                        // If the data does not exist, then skip this entry
                         if (stationData == null) {
                             continue;
                         }
 
+                        int beforeCharging = stationData.getChargingAvailability();
+                        int beforeParking = stationData.getParkingAvailability();
+
                         stationData.setChargingAvailabilityString(stationAvailability.getString("AVAILABLE"));
                         stationData.setParkingAvailabilityString(stationAvailability.getString("REMAINING_SPACE"));
+
+                        boolean chargingChanged = (beforeCharging != stationData.getChargingAvailability());
+                        boolean parkingChanged = (beforeParking != stationData.getParkingAvailability());
+
+                        if (chargingChanged || parkingChanged) {
+                            // Mark that an update is needed
+                            updated = true;
+
+                            // Notify the user of this change if this is not the first run
+                            // Only run if the user preferences match
+                            if (!firstRun) {
+                                // Get the global user preference
+                                boolean nearbyTracking = sp.getBoolean("tracking_NearbyNotifications", false);
+
+                                // If the user is tracking this specific station, then notify them
+                                if (chargingChanged && parkingChanged && stationData.getChargingTrackingStatus() && stationData.getParkingTrackingStatus()) {
+                                    sendNotification("Tracked Station Updated",
+                                            "The charging and parking availability of \"" + stationData.getName() + "\" has changed!", NOTIFICATIONS_TRACKING_CHANNEL);
+                                } else if (chargingChanged && stationData.getChargingTrackingStatus()) {
+                                    sendNotification("Tracked Station Updated",
+                                            "The charging availability of \"" + stationData.getName() + "\" has changed!", NOTIFICATIONS_TRACKING_CHANNEL);
+                                } else if (parkingChanged && stationData.getParkingTrackingStatus()) {
+                                    sendNotification("Tracked Station Updated",
+                                            "The charging availability of \"" + stationData.getName() + "\" has changed!", NOTIFICATIONS_TRACKING_CHANNEL);
+
+                                    // If the station is within one and a half miles of the user, then notify them if they chose to have nearby stations notify them
+                                } else if (nearbyTracking && stationData.getDistance(lastKnownLocation) < 1.5) {
+                                    sendNotification("Nearby Station Updated", "The availability of the nearby station \"" + stationData.getName() + "\" has changed!", NOTIFICATIONS_NEARBY_CHANNEL);
+                                }
+                            }
+                        }
                     }
 
                 } catch (JSONException e) {
@@ -506,7 +586,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             Snackbar.LENGTH_LONG).show();
                 }
 
-                displayStations();
+                // Only update the display if the station availabilities changed
+                if (updated) {
+                    displayStations(repeatingCall);
+                }
             }
         }, error -> {
             // Handle Errors Here
@@ -566,7 +649,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * This function relies on the stationListJSON variable, which is updated through requestAndDisplayStations
      * ----------------------------------------------------------------------------------------------------------------
      **/
-    private void displayStations() {
+    private void displayStations(boolean repeatingCall) {
         // Get the user preferences for later use
         Boolean availablePreference = previousBooleanPreferences.get("switch_Available");
         Boolean unknownPreference = previousBooleanPreferences.get("switch_Unknown");
@@ -674,9 +757,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         // Display a message to the user indicating that the stations were updated
-        Toast.makeText(this, "Stations updated", Toast.LENGTH_SHORT).show();
+        if (!repeatingCall) {
+            Toast.makeText(this, "Stations updated", Toast.LENGTH_SHORT).show();
+        }
         //Snackbar.make(findViewById(R.id.bottom_sheet_wrapper), "Stations updated", Snackbar.LENGTH_INDEFINITE).show();
+
+        // After the first run, start running this code regularly
+        if (firstRun) {
+            firstRun = false;
+            repeater.scheduleWithFixedDelay(runnableCode, 6, 6, TimeUnit.SECONDS);
+        }
     }
+
+    /**
+     * ----------------------------------------------------------------------------------------------------------------
+     * Runnable - Repeatable code used to continuously keep checking for station availability updates
+     * This also avoids alerting the user that the stations were updated unless something actually changed
+     * ----------------------------------------------------------------------------------------------------------------
+     **/
+    private Runnable runnableCode = new Runnable() {
+        @Override
+        public void run() {
+            // Do something here on the main thread
+            sendAPIRequest(REQUEST_API_SERVER, Request.Method.GET, REQUEST_API_SERVER_URL, true);
+        }
+    };
 
     /**
      * ----------------------------------------------------------------------------------------------------------------
@@ -763,16 +868,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 text.setText(getString(R.string.bottom_sheet_expected_date_value, stationData.getExpectedDate()));
             }
 
+            // Set up the charging status tracking switch
+            Switch trackSwitch = findViewById(R.id.bottom_sheet_track_charging);
+            trackSwitch.setChecked(stationData.getChargingTrackingStatus());
+            trackSwitch.setOnClickListener(view -> {
+                stationData.setChargingTrackingStatus(!stationData.getChargingTrackingStatus());
+            });
+
+            // Set up the parking status tracking switch
+            trackSwitch = findViewById(R.id.bottom_sheet_track_parking);
+            trackSwitch.setChecked(stationData.getParkingTrackingStatus());
+            trackSwitch.setOnClickListener(view -> {
+                stationData.setParkingTrackingStatus(!stationData.getParkingTrackingStatus());
+            });
+
             // Set up the location button
-            FloatingActionButton getLocation = findViewById(R.id.bottom_sheet_button_location);
-            getLocation.setOnClickListener(view -> {
+            FloatingActionButton mapsButton = findViewById(R.id.bottom_sheet_button_location);
+            mapsButton.setOnClickListener(view -> {
                 // Note: view is a View object
                 getLocationOfStation(marker);
             });
 
             // Set up the directions button
-            FloatingActionButton getDirections = findViewById(R.id.bottom_sheet_button_directions);
-            getDirections.setOnClickListener(view -> {
+            mapsButton = findViewById(R.id.bottom_sheet_button_directions);
+            mapsButton.setOnClickListener(view -> {
                 // Note: view is a View object
                 getPathToStation(marker.getPosition());
             });

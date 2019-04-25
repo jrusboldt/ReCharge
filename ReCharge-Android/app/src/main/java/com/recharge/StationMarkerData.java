@@ -20,6 +20,8 @@ public class StationMarkerData {
     private boolean hasLevel1;
     private boolean hasLevel2;
     private boolean hasDC;
+    private boolean trackingCharging;
+    private boolean trackingParking;
 
     private int chargingAvailability;
     private int parkingAvailability;
@@ -79,6 +81,14 @@ public class StationMarkerData {
         // Save the parking availability status
         // Set this to "Unknown" for now as this will be updated dynamically later
         this.setParkingAvailability(StationMarkerData.STATUS_UNKNOWN);
+
+        // Save the charging tracking status
+        // Set this to "false" by default
+        this.setChargingTrackingStatus(false);
+
+        // Save the parking tracking status
+        // Set this to "false" by default
+        this.setParkingTrackingStatus(false);
 
         // Save a default image for the station
         this.setImage("@drawable/ic_ev_station_black_24dp");
@@ -322,6 +332,22 @@ public class StationMarkerData {
         }
 
         this.parkingAvailability = availability;
+    }
+
+    public boolean getChargingTrackingStatus() {
+        return this.trackingCharging;
+    }
+
+    public void setChargingTrackingStatus(boolean status) {
+        this.trackingCharging = status;
+    }
+
+    public boolean getParkingTrackingStatus() {
+        return this.trackingParking;
+    }
+
+    public void setParkingTrackingStatus(boolean status) {
+        this.trackingParking = status;
     }
 
     public String getImage() {

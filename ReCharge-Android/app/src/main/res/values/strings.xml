@@ -47,6 +47,10 @@
     <string name="bottom_sheet_locate_button">Locate</string>
     <string name="bottom_sheet_directions_button">Directions</string>
 
+    <string name="bottom_sheet_tracking_title">TRACK THIS STATION</string>
+    <string name="bottom_sheet_tracking_charging">Notify me when charging is available</string>
+    <string name="bottom_sheet_tracking_parking">Notify me when parking is available</string>
+
     <string name="station_status_paid">Paid</string>
     <string name="station_status_free">Free</string>
     <string name="station_status_operation_normal">Operating Normally</string>
