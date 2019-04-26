@@ -65,14 +65,14 @@ class InfoPaneViewController: UIViewController {
         
         // add station id to alerts list
         if value {
-            print("added station \(annotation?.stationID) to alert list")
+            print("added station \(annotation?.stationID ?? -1) to alert list")
             userSettings.alertStations.append(annotation?.stationID ?? -1)
         }
         // remove station id from alerts list
         else {
             userSettings.alertStations.enumerated().forEach { station in
                 if station.element == annotation?.stationID {
-                    print("removed station \(annotation?.stationID) from alert list")
+                    print("removed station \(annotation?.stationID ?? -1) from alert list")
                     userSettings.alertStations.remove(at: station.offset)
                 }
 
