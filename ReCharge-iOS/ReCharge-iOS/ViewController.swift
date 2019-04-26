@@ -30,19 +30,19 @@ extension ViewController: MKMapViewDelegate {
         guard let annotation = annotation as? FuelStationAnnotation else { return nil }
         // 3
         let identifier = "marker"
-        //var view: MKMarkerAnnotationView
-        var view: FuelStationAnnotationView
+        var view: MKMarkerAnnotationView
+        //var view: FuelStationAnnotationView
         // 4
         if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
-            //as? MKMarkerAnnotationView {
-            as? FuelStationAnnotationView {
+            as? MKMarkerAnnotationView {
+            //as? FuelStationAnnotationView {
             dequeuedView.annotation = annotation
             view = dequeuedView
             //view.displayPriority = .required
         } else {
             // 5
-            //view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-            view = FuelStationAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            //view = FuelStationAnnotationView(annotation: annotation, reuseIdentifier: identifier)
             
             view.canShowCallout = true
             view.calloutOffset = CGPoint(x: -5, y: 5)
@@ -51,6 +51,7 @@ extension ViewController: MKMapViewDelegate {
             
             // change pin color/text based on station attributes
             
+            /*
             if !annotation.isOpen {
                 view.image = UIImage(named: "location-pin-not-in-service")
                 
@@ -85,7 +86,8 @@ extension ViewController: MKMapViewDelegate {
                     }
                 }
             }
-/*
+ */
+
             if (annotation.isPaid){
                 view.glyphText = "$"
             }
@@ -114,7 +116,7 @@ extension ViewController: MKMapViewDelegate {
                 view.markerTintColor = UIColor.gray
                 view.glyphText = "!"
             }
- */
+
             
         }
         return view
