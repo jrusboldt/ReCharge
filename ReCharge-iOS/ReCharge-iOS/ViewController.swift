@@ -288,11 +288,11 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                                     //  check if all station alerts are enabled and the station has become available
                                     if userSettings.alertAllStations && station.isChargingAvaiable == false {
                                         /* alert */
-                                        let alert = UIAlertController(title: "nearby station is now available!", message: "station id: \(station.stationID)", preferredStyle: .alert)
+                                        let alert = UIAlertController(title: "Nearby station is now available!", message: station.stationName, preferredStyle: .alert)
                                         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
                                             switch action.style{
                                             case .default:
-                                                print("default")
+                                                print("default, station id: \(station.stationID)")
                                                 
                                             case .cancel:
                                                 print("cancel")
@@ -306,11 +306,11 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                                     // TODO check if alerts are enabled for this station
                                     else if userSettings.alertStations.contains(station.stationID) && station.isChargingAvaiable == false {
                                         /* alert */
-                                        let alert = UIAlertController(title: "nearby station is now available!", message: "station id: \(station.stationID)", preferredStyle: .alert)
+                                        let alert = UIAlertController(title: "Nearby station is now available!", message: station.stationName, preferredStyle: .alert)
                                         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
                                             switch action.style{
                                             case .default:
-                                                print("default")
+                                                print("default, station id: \(station.stationID)")
                                                 
                                             case .cancel:
                                                 print("cancel")
