@@ -158,6 +158,20 @@
                                 <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OLt-x2-JFZ">
+                                <rect key="frame" x="143" y="249" width="49" height="31"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <action selector="alertSwitchTouched:" destination="oxv-wO-gk1" eventType="valueChanged" id="nuB-sb-HXC"/>
+                                </connections>
+                            </switch>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Alerts" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4YK-M4-kmH">
+                                <rect key="frame" x="30" y="254" width="45" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" cocoaTouchSystemColor="tableCellGroupedBackgroundColor"/>
                         <constraints>
@@ -198,6 +212,7 @@
                         <viewLayoutGuide key="safeArea" id="VOI-uD-xu4"/>
                     </view>
                     <connections>
+                        <outlet property="alertSwitch" destination="OLt-x2-JFZ" id="g4v-qI-ezH"/>
                         <outlet property="isChargingAvaiable" destination="pVn-Bc-2bU" id="IXP-wu-Mg6"/>
                         <outlet property="isParkingAvaiable" destination="ave-gv-ton" id="4Ke-VB-JOB"/>
                         <outlet property="stationName" destination="jDP-vh-1Ym" id="jmt-Qq-1Oe"/>
@@ -399,6 +414,24 @@
                                     </switch>
                                 </subviews>
                             </stackView>
+                            <stackView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" spacing="280" translatesAutoresizingMaskIntoConstraints="NO" id="5xD-12-NIu">
+                                <rect key="frame" x="20" y="541" width="374" height="31"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alerts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="83M-1Z-XTQ">
+                                        <rect key="frame" x="0.0" y="0.0" width="45" height="31"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CZh-nW-cuF">
+                                        <rect key="frame" x="325" y="0.0" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="alertsSwitchTouched:" destination="dcV-DW-nEl" eventType="valueChanged" id="6of-5h-Tlf"/>
+                                        </connections>
+                                    </switch>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -411,6 +444,7 @@
                         <viewLayoutGuide key="safeArea" id="H6E-El-V80"/>
                     </view>
                     <connections>
+                        <outlet property="alertsSwitch" destination="CZh-nW-cuF" id="mbY-NP-EMO"/>
                         <outlet property="availableSwitch" destination="wvY-7b-kN2" id="JhS-3o-Eys"/>
                         <outlet property="busySwitch" destination="EI0-Gh-Xqp" id="y4s-e3-2BS"/>
                         <outlet property="fastSwitch" destination="gbR-ES-xMw" id="t3h-Hp-X5L"/>
@@ -430,6 +464,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="aGK-PR-seB"/>
+        <segue reference="zw4-fG-K7q"/>
     </inferredMetricsTieBreakers>
 </document>

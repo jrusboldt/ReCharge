@@ -124,11 +124,12 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
         self.closeInfoPane()
         checkLocationServices()
         
+        //getStationHistory(id: 76232)
 
         let dispatchQueue = DispatchQueue(label: "QueueIdentification", qos: .background)
         dispatchQueue.async{
             while true {
-                sleep(10)
+                sleep(30)
                 self.updateStationStatus()
             }
         }
@@ -284,8 +285,42 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                                 self.mapView.removeAnnotation(station)
                                 
                                 if stationStatus.AVAILABLE == "Y" {
-                                    // TODO check if all station alerts are enabled
+                                    //  check if all station alerts are enabled and the station has become available
+                                    if userSettings.alertAllStations && station.isChargingAvaiable == false {
+                                        /* alert */
+                                        let alert = UIAlertController(title: "nearby station is now available!", message: "station id: \(station.stationID)", preferredStyle: .alert)
+                                        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                                            switch action.style{
+                                            case .default:
+                                                print("default")
+                                                
+                                            case .cancel:
+                                                print("cancel")
+                                                
+                                            case .destructive:
+                                                print("destructive")
+                                            }}))
+                                        
+                                        self.present(alert, animated: true, completion: nil)
+                                    }
                                     // TODO check if alerts are enabled for this station
+                                    else if userSettings.alertStations.contains(station.stationID) && station.isChargingAvaiable == false {
+                                        /* alert */
+                                        let alert = UIAlertController(title: "nearby station is now available!", message: "station id: \(station.stationID)", preferredStyle: .alert)
+                                        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                                            switch action.style{
+                                            case .default:
+                                                print("default")
+                                                
+                                            case .cancel:
+                                                print("cancel")
+                                                
+                                            case .destructive:
+                                                print("destructive")
+                                            }}))
+                                        
+                                        self.present(alert, animated: true, completion: nil)
+                                    }
                                     
                                     station.isChargingAvaiable = true
                                 }
@@ -307,6 +342,74 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
             }
             
             }.resume()
+    }
+    
+    func getStationHistory (id : Int) {
+        
+        struct stationID: Codable {
+            let ID: String
+        }
+        
+        let order = stationID(ID: "\(id)")
+        
+        guard let uploadData = try? JSONEncoder().encode(order) else {
+            print("unable to encode")
+            return
+        }
+        
+        let urlString = "http://18.224.1.103:8080/api/history/specific"
+        //let urlString = "http://18.224.1.103:8080/api/history/specific?ID=\(id)"
+        
+        //guard let url = URL(string: urlString) else { return }
+        
+        let url = URL(string: "http://18.224.1.103:8080/api/history/specific")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
+            if let error = error {
+                print ("error: \(error)")
+                return
+            }
+            guard let response = response as? HTTPURLResponse,
+                (200...299).contains(response.statusCode) else {
+                    print ("server error")
+                    return
+            }
+            if let mimeType = response.mimeType,
+                mimeType == "application/json",
+                let data = data,
+                let dataString = String(data: data, encoding: .utf8) {
+                print ("got data: \(dataString)")
+            }
+        }
+
+        /*
+        let urlString = "http://18.224.1.103:8080/api/history/specific"
+
+        guard let url = URL(string: urlString) else { return }
+        
+        URLSession.shared.dataTask(with: url) { (data, response, err) in
+            
+            //TODO: check err
+            //TODO: check response status is 200 OK
+            
+            guard let data = data else {return}
+            
+            do {
+                let AWSJson2 = try JSONDecoder().decode(AWSJsonObj2.self, from: data)
+                
+                
+                print(AWSJson2)
+                
+                
+            } catch let jsonErr {
+                print("Error serializing json: ", jsonErr)
+            }
+            
+            }.resume()
+ */
     }
 
     //adds map annotations using array of stations pulled from NREL database

@@ -21,6 +21,7 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var paidSwitch: UISwitch!
     @IBOutlet weak var standardSwitch: UISwitch!
     @IBOutlet weak var fastSwitch: UISwitch!
+    @IBOutlet weak var alertsSwitch: UISwitch!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,6 +35,7 @@ class SettingsViewController: UIViewController {
         paidSwitch.setOn(userSettings.paidToggle, animated: false)
         standardSwitch.setOn(userSettings.standardToggle, animated: false)
         fastSwitch.setOn(userSettings.fastToggle, animated: false)
+        alertsSwitch.setOn(userSettings.alertAllStations, animated: false)
         
         /*
         if userSettings != nil {
@@ -77,6 +79,9 @@ class SettingsViewController: UIViewController {
         
         // save fast toggle switch
         userSettings.fastToggle = fastSwitch.isOn
+        
+        // save alerts toggle switch
+        userSettings.alertAllStations = alertsSwitch.isOn
     }
     
     
@@ -159,5 +164,16 @@ class SettingsViewController: UIViewController {
         
         //flip switch
         fastSwitch.setOn(value, animated: true)
+    }
+    
+    
+    @IBAction func alertsSwitchTouched(_ sender: Any) {
+        //get current switch value
+        let value = alertsSwitch.isOn
+        
+        print("alerts switch pressed, value: \(value)")
+        
+        //flip switch
+        alertsSwitch.setOn(value, animated: true)
     }
 }

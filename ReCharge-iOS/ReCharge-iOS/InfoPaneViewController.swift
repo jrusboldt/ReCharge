@@ -22,6 +22,7 @@ class InfoPaneViewController: UIViewController {
     @IBOutlet weak var streetAddress: UILabel!
     @IBOutlet weak var isParkingAvaiable: UILabel!
     @IBOutlet weak var isChargingAvaiable: UILabel!
+    @IBOutlet weak var alertSwitch: UISwitch!
     
     var annotation: FuelStationAnnotation?
     var delegate : InfoPaneDelegateProtocol?
@@ -51,7 +52,37 @@ class InfoPaneViewController: UIViewController {
         } else {
             self.isChargingAvaiable.text = "No"
         }
+        
+        // set alert switch value
+        alertSwitch.setOn(userSettings.alertStations.contains(fuelStation.stationID), animated: false)
     }
+    
+    @IBAction func alertSwitchTouched(_ sender: Any) {
+        //get current switch value
+        let value = alertSwitch.isOn
+        
+        print("alert switch pressed, value: \(value)")
+        
+        // add station id to alerts list
+        if value {
+            print("added station \(annotation?.stationID) to alert list")
+            userSettings.alertStations.append(annotation?.stationID ?? -1)
+        }
+        // remove station id from alerts list
+        else {
+            userSettings.alertStations.enumerated().forEach { station in
+                if station.element == annotation?.stationID {
+                    print("removed station \(annotation?.stationID) from alert list")
+                    userSettings.alertStations.remove(at: station.offset)
+                }
+
+            }
+        }
+        
+        //flip switch
+        alertSwitch.setOn(value, animated: true)
+    }
+    
     
     @IBAction func loadNavigationApp(_ sender: Any) {
         let location = annotation

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		7BC2CA3F2217BCD900309445 /* FuelStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC2CA3E2217BCD900309445 /* FuelStation.swift */; };
 		7BCBE6AE2218CCDC009A6A8D /* InfoPaneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCBE6AD2218CCDC009A6A8D /* InfoPaneViewController.swift */; };
+		D019DB9D227277430018E905 /* StationHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D019DB9C227277430018E905 /* StationHistory.swift */; };
 		D0A3CC4D221F8E140028694C /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A3CC4C221F8E140028694C /* Settings.swift */; };
 		D0AA1123221BBE7300D493E0 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0AA1122221BBE7300D493E0 /* SettingsViewController.swift */; };
 		D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */; };
@@ -23,6 +24,7 @@
 /* Begin PBXFileReference section */
 		7BC2CA3E2217BCD900309445 /* FuelStation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FuelStation.swift; sourceTree = "<group>"; };
 		7BCBE6AD2218CCDC009A6A8D /* InfoPaneViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoPaneViewController.swift; sourceTree = "<group>"; };
+		D019DB9C227277430018E905 /* StationHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationHistory.swift; sourceTree = "<group>"; };
 		D0A3CC4C221F8E140028694C /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		D0AA1122221BBE7300D493E0 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		D0BEA75A220A2DEA00FF2485 /* ReCharge-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ReCharge-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -68,6 +70,7 @@
 			children = (
 				7BC2CA3E2217BCD900309445 /* FuelStation.swift */,
 				D0EE101F226F7A8A0043233D /* StationStatus.swift */,
+				D019DB9C227277430018E905 /* StationHistory.swift */,
 				D0AA1122221BBE7300D493E0 /* SettingsViewController.swift */,
 				D0A3CC4C221F8E140028694C /* Settings.swift */,
 				D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */,
@@ -158,6 +161,7 @@
 				D0BEA760220A2DEA00FF2485 /* ViewController.swift in Sources */,
 				D0EE1020226F7A8A0043233D /* StationStatus.swift in Sources */,
 				7BC2CA3F2217BCD900309445 /* FuelStation.swift in Sources */,
+				D019DB9D227277430018E905 /* StationHistory.swift in Sources */,
 				D0AA1123221BBE7300D493E0 /* SettingsViewController.swift in Sources */,
 				D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */,
 			);
