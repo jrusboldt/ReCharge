@@ -30,22 +30,62 @@ extension ViewController: MKMapViewDelegate {
         guard let annotation = annotation as? FuelStationAnnotation else { return nil }
         // 3
         let identifier = "marker"
-        var view: MKMarkerAnnotationView
+        //var view: MKMarkerAnnotationView
+        var view: FuelStationAnnotationView
         // 4
         if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
-            as? MKMarkerAnnotationView {
+            //as? MKMarkerAnnotationView {
+            as? FuelStationAnnotationView {
             dequeuedView.annotation = annotation
             view = dequeuedView
-            view.displayPriority = .required
+            //view.displayPriority = .required
         } else {
             // 5
-            view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            //view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            view = FuelStationAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            
             view.canShowCallout = true
             view.calloutOffset = CGPoint(x: -5, y: 5)
             view.displayPriority = .required
             //view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
             
             // change pin color/text based on station attributes
+            
+            if !annotation.isOpen {
+                view.image = UIImage(named: "location-pin-not-in-service")
+                
+            }
+            else {
+                if annotation.isPaid{
+                    if annotation.isChargingAvaiable && annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-paid-available")
+                    }
+                    else if !annotation.isChargingAvaiable && annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-paid-no-charging")
+                    }
+                    else if annotation.isChargingAvaiable && !annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-paid-no-parkin")
+                    }
+                    else{
+                        view.image = UIImage(named: "location-pin-paid-no-parking_charging")
+                    }
+                }
+                else {
+                    if annotation.isChargingAvaiable && annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-available")
+                    }
+                    else if !annotation.isChargingAvaiable && annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-no-charging")
+                    }
+                    else if annotation.isChargingAvaiable && !annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-no-parking")
+                    }
+                    else{
+                        view.image = UIImage(named: "location-pin-no-parking_charging")
+                    }
+                }
+            }
+/*
             if (annotation.isPaid){
                 view.glyphText = "$"
             }
@@ -74,6 +114,7 @@ extension ViewController: MKMapViewDelegate {
                 view.markerTintColor = UIColor.gray
                 view.glyphText = "!"
             }
+ */
             
         }
         return view
@@ -113,6 +154,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //registerMapAnnotationViews()
         testCount = 0
         
         if mapView.annotations.count != 0 {
@@ -284,6 +326,15 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                                 // TDOD remove and redraw station annotation
                                 self.mapView.removeAnnotation(station)
                                 
+                                // check satation parking
+                                if stationStatus.REMAINING_SPACE > 0 {
+                                    station.isParkingAvaiable = true
+                                }
+                                else {
+                                    station.isParkingAvaiable = false
+                                }
+                                
+                                // check station availability
                                 if stationStatus.AVAILABLE == "Y" {
                                     //  check if all station alerts are enabled and the station has become available
                                     if userSettings.alertAllStations && station.isChargingAvaiable == false {
@@ -331,8 +382,6 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
                                 self.addStationAnnotation(station: station)
                             
                             }
-                            
-                            // TODO available spaces?
                         }
                     }
                 }
