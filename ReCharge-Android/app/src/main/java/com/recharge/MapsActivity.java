@@ -84,7 +84,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     // Request constants
     private final int REQUEST_API_NREL = 1;
     private final int REQUEST_API_SERVER = 2;
-    private final String REQUEST_API_SERVER_URL = "http://18.224.1.103:8080/api/status/all";
+    private final String REQUEST_API_SERVER_URL = "http://18.224.1.103:8080";
+    private final String REQUEST_API_SERVER_GET = "/api/status/all";
+    private final String REQUEST_API_SERVER_POST = "/api/history/specific";
 
     // Map and station variables
     private GoogleMap mMap;
@@ -262,10 +264,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
+        /*
         Snackbar.make(findViewById(R.id.bottom_sheet_wrapper),
                 "This is just a test!",
                 Snackbar.LENGTH_LONG).show();
+        */
     }
 
     /**
@@ -274,10 +277,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * This can be used to handle any action that we wish when the user presses the back button
      * ----------------------------------------------------------------------------------------------------------------
      **/
-    public void sendNotification(String ChannelID, String title, String content) {
+    public void sendNotification(String title, String content, String ChannelID) {
         // Create an explicit intent for an Activity in your app
         Intent intent = new Intent(this, MapsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ChannelID)
@@ -504,8 +508,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Initialize the request queue
         RequestQueue queue = Volley.newRequestQueue(this);
 
+        // Get the full URL we are sending
+        String sendURL;
+        JSONObject jsonRequestObject = null;
+        if (site == REQUEST_API_SERVER && request == Request.Method.GET) {
+            sendURL = URL + REQUEST_API_SERVER_GET;
+        } else if (site == REQUEST_API_SERVER && request == Request.Method.POST) {
+            sendURL = URL + REQUEST_API_SERVER_POST;
+
+            HashMap<String, String> params = new HashMap<>();
+            params.put("ID", "76232");
+            jsonRequestObject = new JSONObject(params);
+
+        } else {
+            sendURL = URL;
+        }
+
         // Create a request for the json file list of stations
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(request, URL, null, response -> {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(request, sendURL, jsonRequestObject, response -> {
             // If this is a response from the NREL database, save the response and then call
             // our server to get station availability
             // Note: response is a JSONObject
@@ -514,7 +534,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 sendAPIRequest(REQUEST_API_SERVER, Request.Method.GET, REQUEST_API_SERVER_URL, false);
 
                 // If this is a response from our server, save the response and then call displayStations
-            } else if (site == REQUEST_API_SERVER) {
+            } else if (site == REQUEST_API_SERVER && request == Request.Method.GET) {
                 stationAvailabilityJSON = response;
                 boolean updated = false;
 
@@ -561,20 +581,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 // Get the global user preference
                                 boolean nearbyTracking = sp.getBoolean("tracking_NearbyNotifications", false);
 
-                                // If the user is tracking this specific station, then notify them
-                                if (chargingChanged && parkingChanged && stationData.getChargingTrackingStatus() && stationData.getParkingTrackingStatus()) {
-                                    sendNotification("Tracked Station Updated",
-                                            "The charging and parking availability of \"" + stationData.getName() + "\" has changed!", NOTIFICATIONS_TRACKING_CHANNEL);
-                                } else if (chargingChanged && stationData.getChargingTrackingStatus()) {
-                                    sendNotification("Tracked Station Updated",
-                                            "The charging availability of \"" + stationData.getName() + "\" has changed!", NOTIFICATIONS_TRACKING_CHANNEL);
-                                } else if (parkingChanged && stationData.getParkingTrackingStatus()) {
-                                    sendNotification("Tracked Station Updated",
-                                            "The charging availability of \"" + stationData.getName() + "\" has changed!", NOTIFICATIONS_TRACKING_CHANNEL);
+                                // If the user is tracking this specific station, then notify them of changes
+                                if (stationData.getChargingTrackingStatus() || stationData.getParkingTrackingStatus()) {
+                                    if (chargingChanged && parkingChanged && stationData.getChargingTrackingStatus() && stationData.getParkingTrackingStatus()) {
+                                        sendNotification("Tracked Station Updated",
+                                                "The charging and parking availability of \"" + stationData.getName() + "\" has updated!", NOTIFICATIONS_TRACKING_CHANNEL);
+                                    } else if (chargingChanged && stationData.getChargingTrackingStatus()) {
+                                        sendNotification("Tracked Station Updated",
+                                                "The charging availability of \"" + stationData.getName() + "\" has updated!", NOTIFICATIONS_TRACKING_CHANNEL);
+                                    } else if (parkingChanged && stationData.getParkingTrackingStatus()) {
+                                        sendNotification("Tracked Station Updated",
+                                                "The parking availability of \"" + stationData.getName() + "\" has updated!", NOTIFICATIONS_TRACKING_CHANNEL);
+                                    }
 
                                     // If the station is within one and a half miles of the user, then notify them if they chose to have nearby stations notify them
                                 } else if (nearbyTracking && stationData.getDistance(lastKnownLocation) < 1.5) {
-                                    sendNotification("Nearby Station Updated", "The availability of the nearby station \"" + stationData.getName() + "\" has changed!", NOTIFICATIONS_NEARBY_CHANNEL);
+                                    if (stationData.getChargingAvailability() == StationMarkerData.STATUS_AVAILABLE && stationData.getParkingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
+                                        sendNotification("Nearby Station Updated", "The nearby station \"" + stationData.getName() + "\" is now available for both charging and parking!", NOTIFICATIONS_NEARBY_CHANNEL);
+                                    } else if (stationData.getChargingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
+                                        sendNotification("Nearby Station Updated", "The nearby station \"" + stationData.getName() + "\" is now available for charging!", NOTIFICATIONS_NEARBY_CHANNEL);
+                                    } else if (stationData.getParkingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
+                                        sendNotification("Nearby Station Updated", "The nearby station \"" + stationData.getName() + "\" is now available for parking!", NOTIFICATIONS_NEARBY_CHANNEL);
+                                    }
                                 }
                             }
                         }
@@ -590,6 +618,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (updated) {
                     displayStations(repeatingCall);
                 }
+            } else if (site == REQUEST_API_SERVER && request == Request.Method.POST) {
+                // TODO: Handle POST response
             }
         }, error -> {
             // Handle Errors Here
@@ -752,6 +782,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
             }
 
+            // If a station is not currently in operation, override its icon
+            // Use an icon that clearly indicates that a station is not in working order
+            if (!stationData.getWorkingStatus().equals("E")) {
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_not_in_service)).getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
+                i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+            }
+
             // Make the station visible
             i.setVisible(true);
         }
@@ -868,30 +906,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 text.setText(getString(R.string.bottom_sheet_expected_date_value, stationData.getExpectedDate()));
             }
 
+            // Get the station statistics
+            sendAPIRequest(REQUEST_API_SERVER, Request.Method.POST, REQUEST_API_SERVER_URL, false);
+
             // Set up the charging status tracking switch
-            Switch trackSwitch = findViewById(R.id.bottom_sheet_track_charging);
-            trackSwitch.setChecked(stationData.getChargingTrackingStatus());
-            trackSwitch.setOnClickListener(view -> {
+            Switch trackChargingSwitch = findViewById(R.id.bottom_sheet_track_charging);
+            trackChargingSwitch.setChecked(stationData.getChargingTrackingStatus());
+            trackChargingSwitch.setOnClickListener(view -> {
                 stationData.setChargingTrackingStatus(!stationData.getChargingTrackingStatus());
             });
 
             // Set up the parking status tracking switch
-            trackSwitch = findViewById(R.id.bottom_sheet_track_parking);
-            trackSwitch.setChecked(stationData.getParkingTrackingStatus());
-            trackSwitch.setOnClickListener(view -> {
+            Switch trackParkingSwitch = findViewById(R.id.bottom_sheet_track_parking);
+            trackParkingSwitch.setChecked(stationData.getParkingTrackingStatus());
+            trackParkingSwitch.setOnClickListener(view -> {
                 stationData.setParkingTrackingStatus(!stationData.getParkingTrackingStatus());
             });
 
             // Set up the location button
-            FloatingActionButton mapsButton = findViewById(R.id.bottom_sheet_button_location);
-            mapsButton.setOnClickListener(view -> {
+            FloatingActionButton locationButton = findViewById(R.id.bottom_sheet_button_location);
+            locationButton.setOnClickListener(view -> {
                 // Note: view is a View object
                 getLocationOfStation(marker);
             });
 
             // Set up the directions button
-            mapsButton = findViewById(R.id.bottom_sheet_button_directions);
-            mapsButton.setOnClickListener(view -> {
+            FloatingActionButton directionsButton = findViewById(R.id.bottom_sheet_button_directions);
+            directionsButton.setOnClickListener(view -> {
                 // Note: view is a View object
                 getPathToStation(marker.getPosition());
             });

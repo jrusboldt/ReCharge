@@ -424,6 +424,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
                             android:layout_marginTop="10dp"
                             android:summary="Display available charging stations"
                             android:text="@string/bottom_sheet_tracking_charging"/>
@@ -433,6 +434,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
                             android:layout_marginTop="10dp"
                             android:layout_marginBottom="10dp"
                             android:summary="Display available charging stations"

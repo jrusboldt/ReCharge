@@ -41,7 +41,7 @@
 
     <string name="bottom_sheet_statistics_title">STATION USAGE STATISTICS</string>
     <string name="bottom_sheet_statistics_placeholder_label">To be implemented&#8230;</string>
-    <string name="bottom_sheet_statistics_placeholder_value">TBA</string>
+    <string name="bottom_sheet_statistics_placeholder_value">TBD</string>
 
     <string name="bottom_sheet_maps_title">OPEN IN GOOGLE MAPS</string>
     <string name="bottom_sheet_locate_button">Locate</string>
