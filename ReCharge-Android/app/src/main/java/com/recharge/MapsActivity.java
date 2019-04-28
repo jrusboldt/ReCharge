@@ -583,24 +583,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                                 // If the user is tracking this specific station, then notify them of changes
                                 if (stationData.getChargingTrackingStatus() || stationData.getParkingTrackingStatus()) {
-                                    if (chargingChanged && parkingChanged && stationData.getChargingTrackingStatus() && stationData.getParkingTrackingStatus()) {
+                                    if (stationData.getChargingAvailability() == StationMarkerData.STATUS_AVAILABLE && stationData.getParkingAvailability() == StationMarkerData.STATUS_AVAILABLE && stationData.getChargingTrackingStatus() && stationData.getParkingTrackingStatus()) {
                                         sendNotification("Tracked Station Updated",
-                                                "The charging and parking availability of \"" + stationData.getName() + "\" has updated!", NOTIFICATIONS_TRACKING_CHANNEL);
-                                    } else if (chargingChanged && stationData.getChargingTrackingStatus()) {
+                                                "Your tracked station \"" + stationData.getName() + "\" is now available for both charging and parking!", NOTIFICATIONS_TRACKING_CHANNEL);
+                                    } else if (chargingChanged && stationData.getChargingAvailability() == StationMarkerData.STATUS_AVAILABLE && stationData.getChargingTrackingStatus()) {
                                         sendNotification("Tracked Station Updated",
-                                                "The charging availability of \"" + stationData.getName() + "\" has updated!", NOTIFICATIONS_TRACKING_CHANNEL);
-                                    } else if (parkingChanged && stationData.getParkingTrackingStatus()) {
+                                                "Your tracked station \"" + stationData.getName() + "\" is now available for charging!", NOTIFICATIONS_TRACKING_CHANNEL);
+                                    } else if (parkingChanged && stationData.getParkingAvailability() == StationMarkerData.STATUS_AVAILABLE && stationData.getParkingTrackingStatus()) {
                                         sendNotification("Tracked Station Updated",
-                                                "The parking availability of \"" + stationData.getName() + "\" has updated!", NOTIFICATIONS_TRACKING_CHANNEL);
+                                                "Your tracked station \"" + stationData.getName() + "\" is now available for parking!", NOTIFICATIONS_TRACKING_CHANNEL);
                                     }
 
                                     // If the station is within one and a half miles of the user, then notify them if they chose to have nearby stations notify them
                                 } else if (nearbyTracking && stationData.getDistance(lastKnownLocation) < 1.5) {
                                     if (stationData.getChargingAvailability() == StationMarkerData.STATUS_AVAILABLE && stationData.getParkingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
                                         sendNotification("Nearby Station Updated", "The nearby station \"" + stationData.getName() + "\" is now available for both charging and parking!", NOTIFICATIONS_NEARBY_CHANNEL);
-                                    } else if (stationData.getChargingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
+                                    } else if (chargingChanged && stationData.getChargingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
                                         sendNotification("Nearby Station Updated", "The nearby station \"" + stationData.getName() + "\" is now available for charging!", NOTIFICATIONS_NEARBY_CHANNEL);
-                                    } else if (stationData.getParkingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
+                                    } else if (parkingChanged && stationData.getParkingAvailability() == StationMarkerData.STATUS_AVAILABLE) {
                                         sendNotification("Nearby Station Updated", "The nearby station \"" + stationData.getName() + "\" is now available for parking!", NOTIFICATIONS_NEARBY_CHANNEL);
                                     }
                                 }
@@ -777,7 +777,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
 
             } else {
-                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_not_in_service)).getBitmap();
+                Bitmap bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.location_pin_not_tracking)).getBitmap();
                 Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
                 i.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
             }
