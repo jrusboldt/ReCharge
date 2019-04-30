@@ -12,6 +12,7 @@ import CoreLocation
 class ChargingStationAnnotation: NSObject, MKAnnotation {
     
     var coordinate: CLLocationCoordinate2D
+    //var annotations: [FuelStationAnnotation]
     let title: String?
     
     
@@ -30,21 +31,93 @@ extension ViewController: MKMapViewDelegate {
         // 3
         let identifier = "marker"
         var view: MKMarkerAnnotationView
+        //var view: FuelStationAnnotationView
         // 4
         if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
             as? MKMarkerAnnotationView {
+            //as? FuelStationAnnotationView {
             dequeuedView.annotation = annotation
             view = dequeuedView
+            //view.displayPriority = .required
         } else {
             // 5
             view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            //view = FuelStationAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            
             view.canShowCallout = true
             view.calloutOffset = CGPoint(x: -5, y: 5)
+            view.displayPriority = .required
             //view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
             
-            if (annotation.is_paid){
+            // change pin color/text based on station attributes
+            
+            /*
+            if !annotation.isOpen {
+                view.image = UIImage(named: "location-pin-not-in-service")
+                
+            }
+            else {
+                if annotation.isPaid{
+                    if annotation.isChargingAvaiable && annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-paid-available")
+                    }
+                    else if !annotation.isChargingAvaiable && annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-paid-no-charging")
+                    }
+                    else if annotation.isChargingAvaiable && !annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-paid-no-parkin")
+                    }
+                    else{
+                        view.image = UIImage(named: "location-pin-paid-no-parking_charging")
+                    }
+                }
+                else {
+                    if annotation.isChargingAvaiable && annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-available")
+                    }
+                    else if !annotation.isChargingAvaiable && annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-no-charging")
+                    }
+                    else if annotation.isChargingAvaiable && !annotation.isParkingAvaiable{
+                        view.image = UIImage(named: "location-pin-no-parking")
+                    }
+                    else{
+                        view.image = UIImage(named: "location-pin-no-parking_charging")
+                    }
+                }
+            }
+ */
+
+            if (annotation.isPaid){
                 view.glyphText = "$"
             }
+            else {
+                view.glyphText = "F"
+            }
+            
+            if (annotation.isStandardCharger) {
+                view.glyphTintColor = UIColor.white
+            }
+            
+            if (annotation.isDCFastCharger) {
+                view.glyphTintColor = UIColor.black
+            }
+            
+            
+            if (annotation.isChargingAvaiable) {
+                view.markerTintColor = UIColor.green
+            }
+            else  {
+                view.markerTintColor = UIColor.red
+                view.glyphText = "X"
+            }
+            
+            if (!annotation.isOpen) {
+                view.markerTintColor = UIColor.gray
+                view.glyphText = "!"
+            }
+
+            
         }
         return view
     }
@@ -56,19 +129,7 @@ extension ViewController: MKMapViewDelegate {
             let fuelStation = annotation as? FuelStationAnnotation {
             
             embeddedViewController.annotation = fuelStation
-            /*
-            embeddedViewController.stationName.text = fuelStation.station_name
-            embeddedViewController.streetAddress.text = fuelStation.street_address
-            if (fuelStation.is_parking_avaiable){
-                embeddedViewController.isParkingAvaiable.text = "Yes"
-            } else {
-                embeddedViewController.isParkingAvaiable.text = "No"
-            }
-            if (fuelStation.is_charging_avaiable){
-                embeddedViewController.isChargingAvaiable.text = "Yes"
-            } else {
-                embeddedViewController.isChargingAvaiable.text = "No"
-            }*/
+    
             embeddedViewController.populateInfoPane(fuelStation: fuelStation)
             embeddedViewController.showInfoPane()
         }
@@ -78,6 +139,7 @@ extension ViewController: MKMapViewDelegate {
 }
 
 var userSettings : Settings = Settings(proximity: 3)
+var testCount : Int = 0
 
 class ViewController: UIViewController, InfoPaneDelegateProtocol {
     
@@ -94,10 +156,28 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //registerMapAnnotationViews()
+        testCount = 0
+        
+        if mapView.annotations.count != 0 {
+            print("annotations removed")
+            mapView.removeAnnotation(mapView!.annotations as! MKAnnotation)
+        }
+        
         view.addSubview(containerView)
         self.closeInfoPane()
         checkLocationServices()
-    
+        
+        //getStationHistory(id: 76232)
+
+        let dispatchQueue = DispatchQueue(label: "QueueIdentification", qos: .background)
+        dispatchQueue.async{
+            while true {
+                sleep(30)
+                self.updateStationStatus()
+            }
+        }
+
         //userSettings = loadSettings()!
     }
     
@@ -129,49 +209,336 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     }
  */
     
+    func fitAll() {
+        var zoomRect            = MKMapRect.null;
+        for annotation in stations {
+            let annotationPoint = MKMapPoint(annotation.coordinate)
+            let pointRect       = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.01, height: 0.01);
+            zoomRect            = zoomRect.union(pointRect);
+        }
+        //setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 100, left: 100, bottom: 100, right: 100), animated: true)
+    }
+    
     func getNREL(coordinate: CLLocationCoordinate2D, amount: Int) {
         
-        let scriptUrl = URL(string: "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=OxpIDL7uE8O60BL52DC7YYp3T1mq4uy01wlLw5bK&latitude=\(coordinate.latitude)&longitude=\(coordinate.longitude)&limit=10")!
+        let urlString = "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=OxpIDL7uE8O60BL52DC7YYp3T1mq4uy01wlLw5bK&latitude=\(coordinate.latitude)&longitude=\(coordinate.longitude)&radius=\(userSettings.proximity)&fuel_type=ELEC&limit=\(amount)"
+        
+        guard let url = URL(string: urlString) else { return }
     
-        let configuration = URLSessionConfiguration.ephemeral
-        let session = URLSession(configuration: configuration, delegate: nil, delegateQueue: OperationQueue.main)
-        let task = session.dataTask(with: scriptUrl, completionHandler: { [weak self] (data: Data?, response: URLResponse?, error: Error?) -> Void in
-            // Parse the data in the response and use it
+        
+        URLSession.shared.dataTask(with: url) { (data, response, err) in
+            
+            //TODO: check err
+            //TODO: check response status is 200 OK
+            
+            guard let data = data else {return}
+            
             do {
-                let json = try JSONSerialization.jsonObject(with: data!, options: []) as! [String: AnyObject]
+                let NRELJson = try JSONDecoder().decode(NRELJsonObj.self, from: data)
                 
-                print(json)
+                print(NRELJson)
+                print(urlString)
                 
-                //let stationArray = json["fuel_stations"]
-                //print(stationArray)
+                for fuel_station in NRELJson.fuel_stations {
+                    let temp = FuelStationAnnotation(obj: fuel_station)
+                    
+                    /* test data
+                    if testCount == 0 {
+                        temp.isChargingAvaiable = true
+                        temp.isPaid = false
+                        temp.isOpen = true
+                    }
+                    if testCount == 1 {
+                        temp.isChargingAvaiable = true
+                        temp.isPaid = true
+                        temp.isOpen = true
+                    }
+                    if testCount == 2 {
+                        temp.isOpen = false
+                    }
+                    if testCount == 3 {
+                        temp.isOpen = true
+                        temp.isPaid = true
+                        temp.isDCFastCharger = true
+                    }
+                    if testCount == 4 {
+                        temp.isOpen = true
+                        temp.isChargingAvaiable = true
+                        temp.isDCFastCharger = true
+                    }
+                    if testCount == 5 {
+                        temp.isOpen = true
+                        temp.isChargingAvaiable = true
+                        temp.isDCFastCharger = true
+                    }
+                    if testCount == 6 {
+                        temp.isOpen = false
+                    }
+                    
+                    testCount += 1
+ */
+                    
+                    self.addStationAnnotation(station: temp)
+                }
                 
-                //TODO figure out how to parse JSON object
+                /* get real-time station status */
+                self.updateStationStatus()
                 
-                //hardcode in station data for West Lafette
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Armory", is_paid: false, latitude: 40.4277617, longitude: -86.9162607))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Northwestern Parking Garage", is_paid: false, latitude: 40.4296753, longitude: -86.9120266))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - University Street Garage", is_paid: true, latitude: 40.426713, longitude: -86.917213))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Grant Street Parking Garage", is_paid: false, latitude: 40.4244203, longitude: -86.9103211))
-                self!.stations.append(FuelStationAnnotation.init(station_name: "Purdue University - Harrison Street Garage", is_paid: true, latitude: 40.421241, longitude: -86.917619))
-                
-                self?.addStationAnnotations()
-            } catch let error as NSError {
-                print("Failed to load: \(error.localizedDescription)")
+            } catch let jsonErr {
+                print("lat: \(coordinate.latitude)\nlon: \(coordinate.longitude)")
+                print("Error serializing json: ", jsonErr)
             }
-        })
-        task.resume()
+          
+        }.resume()
         
     }
     
+    /* pull data from real-time database */
+    
+    func updateStationStatus () {
+        let urlString = "http://18.224.1.103:8080/api/status/all"
+        
+        guard let url = URL(string: urlString) else { return }
+        
+        
+        URLSession.shared.dataTask(with: url) { (data, response, err) in
+            
+            //TODO: check err
+            //TODO: check response status is 200 OK
+            
+            guard let data = data else {return}
+            
+            do {
+                let AWSJson = try JSONDecoder().decode(AWSJsonObj.self, from: data)
+                
+                
+                print(AWSJson)
+                
+                // loop through each station currently on the map
+                for station in self.stations {
+                    // loop through each station with status in AWS database
+                    for stationStatus in AWSJson.response {
+                        // check if station id matches up
+                        if station.stationID == stationStatus.ID {
+                            
+                            print("updating station \(station.stationID)")
+                            
+                            DispatchQueue.main.async {
+                                // Update UI
+                                // TDOD remove and redraw station annotation
+                                self.mapView.removeAnnotation(station)
+                                
+                                // check satation parking
+                                if stationStatus.REMAINING_SPACE > 0 {
+                                    station.isParkingAvaiable = true
+                                }
+                                else {
+                                    station.isParkingAvaiable = false
+                                }
+                                
+                                // check station availability
+                                if stationStatus.AVAILABLE == "Y" {
+                                    //  check if all station alerts are enabled and the station has become available
+                                    if userSettings.alertAllStations && station.isChargingAvaiable == false {
+                                        /* alert */
+                                        let alert = UIAlertController(title: "Nearby station is now available!", message: station.stationName, preferredStyle: .alert)
+                                        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                                            switch action.style{
+                                            case .default:
+                                                print("default, station id: \(station.stationID)")
+                                                
+                                            case .cancel:
+                                                print("cancel")
+                                                
+                                            case .destructive:
+                                                print("destructive")
+                                            }}))
+                                        
+                                        self.present(alert, animated: true, completion: nil)
+                                    }
+                                    // TODO check if alerts are enabled for this station
+                                    else if userSettings.alertStations.contains(station.stationID) && station.isChargingAvaiable == false {
+                                        /* alert */
+                                        let alert = UIAlertController(title: "Nearby station is now available!", message: station.stationName, preferredStyle: .alert)
+                                        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                                            switch action.style{
+                                            case .default:
+                                                print("default, station id: \(station.stationID)")
+                                                
+                                            case .cancel:
+                                                print("cancel")
+                                                
+                                            case .destructive:
+                                                print("destructive")
+                                            }}))
+                                        
+                                        self.present(alert, animated: true, completion: nil)
+                                    }
+                                    
+                                    station.isChargingAvaiable = true
+                                }
+                                else {
+                                    station.isChargingAvaiable = false
+                                }
+                            
+                                self.addStationAnnotation(station: station)
+                            
+                            }
+                        }
+                    }
+                }
+                
+            } catch let jsonErr {
+                print("Error serializing json: ", jsonErr)
+            }
+            
+            }.resume()
+    }
+    
+    func getStationHistory (id : Int) {
+        
+        struct stationID: Codable {
+            let ID: String
+        }
+        
+        let order = stationID(ID: "\(id)")
+        
+        guard let uploadData = try? JSONEncoder().encode(order) else {
+            print("unable to encode")
+            return
+        }
+        
+        let urlString = "http://18.224.1.103:8080/api/history/specific"
+        //let urlString = "http://18.224.1.103:8080/api/history/specific?ID=\(id)"
+        
+        //guard let url = URL(string: urlString) else { return }
+        
+        let url = URL(string: "http://18.224.1.103:8080/api/history/specific")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
+            if let error = error {
+                print ("error: \(error)")
+                return
+            }
+            guard let response = response as? HTTPURLResponse,
+                (200...299).contains(response.statusCode) else {
+                    print ("server error")
+                    return
+            }
+            if let mimeType = response.mimeType,
+                mimeType == "application/json",
+                let data = data,
+                let dataString = String(data: data, encoding: .utf8) {
+                print ("got data: \(dataString)")
+            }
+        }
+
+        /*
+        let urlString = "http://18.224.1.103:8080/api/history/specific"
+
+        guard let url = URL(string: urlString) else { return }
+        
+        URLSession.shared.dataTask(with: url) { (data, response, err) in
+            
+            //TODO: check err
+            //TODO: check response status is 200 OK
+            
+            guard let data = data else {return}
+            
+            do {
+                let AWSJson2 = try JSONDecoder().decode(AWSJsonObj2.self, from: data)
+                
+                
+                print(AWSJson2)
+                
+                
+            } catch let jsonErr {
+                print("Error serializing json: ", jsonErr)
+            }
+            
+            }.resume()
+ */
+    }
+
     //adds map annotations using array of stations pulled from NREL database
-    func addStationAnnotations() {
-        for i in stations {
-            mapView.addAnnotation(i)
+    func addStationAnnotation(station: FuelStationAnnotation) {
+        
+        var matchedCriteria = true
+        
+        /* check station based on availability toggles */
+        
+        // check if only available is toggled
+        if userSettings.availableToggle && !userSettings.busyToggle {
+            if !station.isChargingAvaiable {
+                matchedCriteria = false
+            }
+        }
+        // check if only busy is toggled
+        else if !userSettings.availableToggle && userSettings.busyToggle {
+            if station.isChargingAvaiable {
+                matchedCriteria = false
+            }
+        }
+        // check if both are toggled off
+        else if !userSettings.availableToggle && !userSettings.busyToggle{
+            matchedCriteria = false
+        }
+        
+        /* check station based on cost toggles */
+        
+        // check if only free is toggled
+        if userSettings.freeToggle && !userSettings.paidToggle {
+            if station.isPaid {
+                matchedCriteria = false
+            }
+        }
+        // check if only paid is toggled
+        else if !userSettings.freeToggle && userSettings.paidToggle {
+            if !station.isPaid {
+                matchedCriteria = false
+            }
+        }
+        // check if both are toggled off
+        else if !userSettings.freeToggle && !userSettings.paidToggle {
+            matchedCriteria = false
+        }
+        
+        /* check station based on charging type */
+        
+        // check if only standard is toggled
+        if userSettings.standardToggle && !userSettings.fastToggle {
+            if !station.isStandardCharger {
+                matchedCriteria = false
+            }
+        }
+        // check if only DC fast is toggled
+        else if !userSettings.standardToggle && userSettings.fastToggle {
+            if !station.isDCFastCharger {
+                matchedCriteria = false
+            }
+        }
+        // check if both are toggled off
+        else if !userSettings.standardToggle && !userSettings.fastToggle {
+            matchedCriteria = false
+        }
+        
+        // check if station should be added to the map
+        if matchedCriteria {
+            // check if station is not already in the list
+            if !self.stations.contains(station) {
+                self.stations.append(station)
+            }
+            mapView.addAnnotation(station)
         }
     }
     
     private func registerMapAnnotationViews() {
-        mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(ChargingStationAnnotation.self))
+       // mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(ChargingStationAnnotation.self))
+        mapView.register(FuelStationAnnotationView.self,
+                         forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
     }
 
     func setupLocationManager() {
@@ -181,12 +548,12 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
     
     func centerViewOnUserLocation() {
         if let location = locationManager.location?.coordinate {
-            var region = MKCoordinateRegion.init(center: location, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
-                                                 longitudinalMeters: Double(userSettings.proximity*1500))
+            let region = MKCoordinateRegion.init(center: location, latitudinalMeters: Double(userSettings.proximity*regionInMeters),
+                                                 longitudinalMeters: Double(userSettings.proximity*regionInMeters))
             
             mapView.setRegion(region, animated: true)
             
-            getNREL(coordinate: location, amount: 5)
+            getNREL(coordinate: location, amount: 100)
         }
     }
 
@@ -209,7 +576,7 @@ class ViewController: UIViewController, InfoPaneDelegateProtocol {
             setupLocationManager()
             checkLocationAuthorization()
             locationManager.startUpdatingLocation()
-            mapView.userTrackingMode = MKUserTrackingMode(rawValue: 2)!
+            //mapView.userTrackingMode = MKUserTrackingMode(rawValue: 2)!
         }
         else {
             // show alert to enable location services
@@ -262,13 +629,17 @@ extension ViewController: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+        //let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
         //self.mapView.setRegion(region, animated: true)
     }
     
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        checkLocationAuthorization()
+        print("location auth changed")
+        
+        if status != CLLocationManager.authorizationStatus(){
+            checkLocationAuthorization()
+        }
     }
 }
 

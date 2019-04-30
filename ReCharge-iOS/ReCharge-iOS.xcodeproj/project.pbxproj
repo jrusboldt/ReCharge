@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		7BC2CA3F2217BCD900309445 /* FuelStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC2CA3E2217BCD900309445 /* FuelStation.swift */; };
 		7BCBE6AE2218CCDC009A6A8D /* InfoPaneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCBE6AD2218CCDC009A6A8D /* InfoPaneViewController.swift */; };
+		D019DB9D227277430018E905 /* StationHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D019DB9C227277430018E905 /* StationHistory.swift */; };
 		D0A3CC4D221F8E140028694C /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A3CC4C221F8E140028694C /* Settings.swift */; };
 		D0AA1123221BBE7300D493E0 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0AA1122221BBE7300D493E0 /* SettingsViewController.swift */; };
 		D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */; };
@@ -17,11 +18,13 @@
 		D0BEA766220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D0BEA764220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld */; };
 		D0BEA768220A2DEA00FF2485 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BEA767220A2DEA00FF2485 /* Assets.xcassets */; };
 		D0BEA76B220A2DEA00FF2485 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0BEA769220A2DEA00FF2485 /* LaunchScreen.storyboard */; };
+		D0EE1020226F7A8A0043233D /* StationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0EE101F226F7A8A0043233D /* StationStatus.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		7BC2CA3E2217BCD900309445 /* FuelStation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FuelStation.swift; sourceTree = "<group>"; };
 		7BCBE6AD2218CCDC009A6A8D /* InfoPaneViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoPaneViewController.swift; sourceTree = "<group>"; };
+		D019DB9C227277430018E905 /* StationHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationHistory.swift; sourceTree = "<group>"; };
 		D0A3CC4C221F8E140028694C /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		D0AA1122221BBE7300D493E0 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		D0BEA75A220A2DEA00FF2485 /* ReCharge-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ReCharge-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -32,6 +35,7 @@
 		D0BEA767220A2DEA00FF2485 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D0BEA76A220A2DEA00FF2485 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D0BEA76C220A2DEA00FF2485 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D0EE101F226F7A8A0043233D /* StationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationStatus.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +69,8 @@
 			isa = PBXGroup;
 			children = (
 				7BC2CA3E2217BCD900309445 /* FuelStation.swift */,
+				D0EE101F226F7A8A0043233D /* StationStatus.swift */,
+				D019DB9C227277430018E905 /* StationHistory.swift */,
 				D0AA1122221BBE7300D493E0 /* SettingsViewController.swift */,
 				D0A3CC4C221F8E140028694C /* Settings.swift */,
 				D0BEA75D220A2DEA00FF2485 /* AppDelegate.swift */,
@@ -153,7 +159,9 @@
 				D0BEA766220A2DEA00FF2485 /* ReCharge_iOS.xcdatamodeld in Sources */,
 				7BCBE6AE2218CCDC009A6A8D /* InfoPaneViewController.swift in Sources */,
 				D0BEA760220A2DEA00FF2485 /* ViewController.swift in Sources */,
+				D0EE1020226F7A8A0043233D /* StationStatus.swift in Sources */,
 				7BC2CA3F2217BCD900309445 /* FuelStation.swift in Sources */,
+				D019DB9D227277430018E905 /* StationHistory.swift in Sources */,
 				D0AA1123221BBE7300D493E0 /* SettingsViewController.swift in Sources */,
 				D0BEA75E220A2DEA00FF2485 /* AppDelegate.swift in Sources */,
 			);
@@ -301,15 +309,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 99HVACPT39;
+				DEVELOPMENT_TEAM = 56L9FU8GYZ;
 				INFOPLIST_FILE = "ReCharge-iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.ReCharge-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.ReCharge-iOS2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -319,15 +329,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 99HVACPT39;
+				DEVELOPMENT_TEAM = 56L9FU8GYZ;
 				INFOPLIST_FILE = "ReCharge-iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.ReCharge-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.ReCharge-iOS2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -11,9 +11,24 @@ import os.log
 class Settings : NSObject, NSCoding{
     
     var proximity : Double
+    var availableToggle : Bool
+    var busyToggle : Bool
+    var freeToggle : Bool
+    var paidToggle : Bool
+    var standardToggle : Bool
+    var fastToggle : Bool
+    var alertAllStations : Bool
+    var alertStations = [Int]()
     
     init(proximity: Double) {
         self.proximity = proximity
+        self.availableToggle = true
+        self.busyToggle = true
+        self.freeToggle = true
+        self.paidToggle = true
+        self.standardToggle = true
+        self.fastToggle = true
+        self.alertAllStations = false
     }
     
     struct PropertyKey {
