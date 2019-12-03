@@ -624,6 +624,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }, error -> {
             // Handle Errors Here
             // Note: error is a VolleyError object
+
+            // If there was an error retrieving data from our server, forcibly display stations
+            // This ensures that there are still stations displayed despite our server failing
+            if (site == REQUEST_API_SERVER) {
+                displayStations(repeatingCall);
+            }
         });
 
         // Add the request for the json file to the request queue

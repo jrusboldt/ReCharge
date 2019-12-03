@@ -172,12 +172,6 @@ public class StationMarkerData {
     public void setWorkingStatus(String status) {
         this.workingStatus = status;
 
-        // Special case for demo purposes
-        // This sets the armory charging station to temporarily unavailable
-        if (getID().equals("46844")) {
-            this.workingStatus = "T";
-        }
-
         // If the working status is not equal to "E", then it is unavailable for charging
         if (!status.equals("E")) {
             setChargingAvailability(StationMarkerData.STATUS_UNAVAILABLE);
